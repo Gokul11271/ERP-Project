@@ -3,7 +3,6 @@ package com.erp.config;
 import com.erp.repository.UserRepository;
 import com.erp.security.JwtAuthenticationFilter;
 import com.erp.security.JwtService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +34,6 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UserRepository userRepository;
@@ -43,6 +41,11 @@ public class SecurityConfig {
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
+
+    public SecurityConfig(UserRepository userRepository, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
+    }
 
     /**
      * User details service bean for loading users from database
@@ -110,7 +113,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/h2-console/**",
-                                "/error")
+                                "/error",
+                                "/actuator/**")
                         .permitAll()
                         // Admin only endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

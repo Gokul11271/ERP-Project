@@ -1,10 +1,6 @@
 package com.erp.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,10 +12,6 @@ import java.util.List;
 /**
  * User entity representing a user in the ERP system
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -50,6 +42,21 @@ public class User implements UserDetails {
     @Column(name = "is_active")
     private boolean isActive = true;
 
+    public User() {
+    }
+
+    public User(Long id, String name, String email, String password, Role role,
+            LocalDateTime createdAt, LocalDateTime updatedAt, boolean isActive) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.isActive = isActive;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -72,6 +79,11 @@ public class User implements UserDetails {
     }
 
     @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
     public boolean isAccountNonExpired() {
         return true;
     }
@@ -89,5 +101,126 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return isActive;
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    // Builder pattern
+    public static UserBuilder builder() {
+        return new UserBuilder();
+    }
+
+    public static class UserBuilder {
+        private Long id;
+        private String name;
+        private String email;
+        private String password;
+        private Role role;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+        private boolean isActive = true;
+
+        public UserBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public UserBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public UserBuilder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public UserBuilder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public UserBuilder role(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public UserBuilder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public UserBuilder updatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public UserBuilder isActive(boolean isActive) {
+            this.isActive = isActive;
+            return this;
+        }
+
+        public User build() {
+            return new User(id, name, email, password, role, createdAt, updatedAt, isActive);
+        }
     }
 }

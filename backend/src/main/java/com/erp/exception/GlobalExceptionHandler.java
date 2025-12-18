@@ -1,6 +1,7 @@
 package com.erp.exception;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,8 +17,54 @@ import java.util.Map;
  * Global exception handler for REST API errors
  */
 @RestControllerAdvice
-@Slf4j
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    /**
+     * Handle resource not found exceptions
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        log.warn("Resource not found: {}", ex.getMessage());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("error", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().toString());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    /**
+     * Handle duplicate resource exceptions
+     */
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateResourceException(DuplicateResourceException ex) {
+        log.warn("Duplicate resource: {}", ex.getMessage());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("error", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().toString());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    /**
+     * Handle illegal argument exceptions
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.warn("Invalid argument: {}", ex.getMessage());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("error", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().toString());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
     /**
      * Handle validation errors
@@ -34,6 +82,7 @@ public class GlobalExceptionHandler {
         response.put("success", false);
         response.put("error", "Validation failed");
         response.put("details", errors);
+        response.put("timestamp", LocalDateTime.now().toString());
 
         log.warn("Validation error: {}", errors);
         return ResponseEntity.badRequest().body(response);
@@ -49,6 +98,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);
         response.put("error", "An unexpected error occurred. Please try again.");
+        response.put("timestamp", LocalDateTime.now().toString());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

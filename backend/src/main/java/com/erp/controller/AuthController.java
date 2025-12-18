@@ -4,8 +4,8 @@ import com.erp.dto.LoginRequest;
 import com.erp.dto.LoginResponse;
 import com.erp.service.AuthService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,11 +14,15 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
-@Slf4j
 public class AuthController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+
     private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     /**
      * Login endpoint
@@ -44,7 +48,7 @@ public class AuthController {
      * Validate token endpoint
      * GET /api/auth/validate
      *
-     * @param token JWT token from Authorization header
+     * @param authHeader JWT token from Authorization header
      * @return true if valid, false otherwise
      */
     @GetMapping("/validate")

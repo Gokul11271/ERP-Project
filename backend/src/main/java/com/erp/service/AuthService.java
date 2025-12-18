@@ -6,8 +6,8 @@ import com.erp.entity.Role;
 import com.erp.entity.User;
 import com.erp.repository.UserRepository;
 import com.erp.security.JwtService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,14 +18,22 @@ import org.springframework.stereotype.Service;
  * Authentication service handling login and user validation
  */
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+
+    public AuthService(UserRepository userRepository, JwtService jwtService,
+            AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     /**
      * Authenticate user and generate JWT token
