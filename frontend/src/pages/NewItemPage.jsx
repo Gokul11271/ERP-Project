@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   InformationCircleIcon,
   ChevronDownIcon,
-  XMarkIcon, 
 } from "@heroicons/react/24/outline";
 import { UNIT_OPTIONS, ACCOUNT_OPTIONS } from "../data/constants";
+import { createItem } from "../services/itemsService";
 
 // --- Reusable Input Component - Material Floating Label Style ---
 const LabeledInput = ({
@@ -13,7 +13,8 @@ const LabeledInput = ({
   label,
   required = false,
   type = "text",
-  placeholder = "",
+  value,
+  onChange,
   currency = null,
 }) => (
   <div className="flex flex-col space-y-1 relative">
@@ -21,7 +22,11 @@ const LabeledInput = ({
     <input
       id={id}
       type={type}
-      className={`peer w-full h-12 px-4 pt-4 pb-0 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-transparent focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition duration-200 ${currency ? 'pl-16' : ''}`}
+      value={value}
+      onChange={onChange}
+      className={`peer w-full h-12 px-4 pt-4 pb-0 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-transparent focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition duration-200 ${
+        currency ? "pl-16" : ""
+      }`}
       placeholder=" "
     />
     {/* Currency Prefix */}
@@ -33,7 +38,9 @@ const LabeledInput = ({
     {/* Floating Label */}
     <label
       htmlFor={id}
-      className={`absolute left-4 top-1 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:top-1 peer-focus:text-xs peer-focus:text-blue-600 ${required ? 'peer-focus:text-red-600' : ''}`}
+      className={`absolute left-4 top-1 text-xs text-gray-500 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:top-1 peer-focus:text-xs peer-focus:text-blue-600 ${
+        required ? "peer-focus:text-red-600" : ""
+      }`}
     >
       {label}
       {required && "*"}
@@ -41,18 +48,16 @@ const LabeledInput = ({
   </div>
 );
 
-
 // --- DropdownSelect Component (Updated Styling) ---
 const DropdownSelect = ({
   label,
   options,
   groupOptions,
   required = false,
-  defaultValue = "",
+  value,
+  onChange,
   placeholder = "Select or type to add",
 }) => {
-  const [value, setValue] = useState(defaultValue);
-
   const renderOptions = () => {
     if (groupOptions) {
       return groupOptions.map((group, index) => (
@@ -85,7 +90,7 @@ const DropdownSelect = ({
       <div className="relative">
         <select
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={onChange}
           className="w-full border border-gray-300 rounded-lg p-2.5 text-sm appearance-none focus:ring-blue-600 focus:border-blue-600 bg-white text-gray-800 shadow-sm"
         >
           {!value && (
@@ -109,7 +114,81 @@ const DropdownSelect = ({
 };
 
 const NewItemPage = () => {
-  const [itemType, setItemType] = useState("goods");
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    type: "GOODS",
+    unit: "KGS",
+    sellable: true,
+    sellingPrice: "",
+    salesAccount: "Sales",
+    salesDescription: "",
+    purchasable: true,
+    costPrice: "",
+    purchaseAccount: "Cost of Goods Sold",
+    purchaseDescription: "",
+    preferredVendor: "",
+  });
+
+  const handleInputChange = (field) => (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: e.target.value,
+    }));
+  };
+
+  const handleCheckboxChange = (field) => (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: e.target.checked,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    // Validate required fields
+    if (!formData.name.trim()) {
+      setError("Item name is required");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // Prepare the data for the API
+      const itemData = {
+        name: formData.name.trim(),
+        type: formData.type,
+        unit: formData.unit,
+        sellable: formData.sellable,
+        sellingPrice: formData.sellingPrice
+          ? parseFloat(formData.sellingPrice)
+          : null,
+        salesAccount: formData.salesAccount,
+        salesDescription: formData.salesDescription,
+        purchasable: formData.purchasable,
+        costPrice: formData.costPrice ? parseFloat(formData.costPrice) : null,
+        purchaseAccount: formData.purchaseAccount,
+        purchaseDescription: formData.purchaseDescription,
+        preferredVendor: formData.preferredVendor,
+      };
+
+      await createItem(itemData);
+
+      // Navigate to items list on success
+      navigate("/items", {
+        state: { message: "Item created successfully!" },
+      });
+    } catch (err) {
+      setError(err.message || "Failed to create item. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const LabelWithInfo = ({ children }) => (
     <div className="flex items-center space-x-1 text-sm text-gray-700 font-semibold">
@@ -123,7 +202,9 @@ const NewItemPage = () => {
     <div className="p-4 sm:p-8">
       {/* Header - Made action items wrap on very small screens */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3 sm:mb-0">New Item</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3 sm:mb-0">
+          New Item
+        </h1>
         <div className="flex space-x-3">
           <Link
             to="/items"
@@ -131,18 +212,27 @@ const NewItemPage = () => {
           >
             Cancel
           </Link>
-          <button className="py-2 px-4 text-sm bg-blue-600 text-white rounded-lg shadow-md-2 hover:bg-blue-700 transition">
-            Save
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="py-2 px-4 text-sm bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? "Saving..." : "Save"}
           </button>
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
       {/* Item Form Card - Consistent Elevation */}
-      <div className=" bg-white p-6 sm:p-8 rounded-xl shadow-xl-2 border border-gray-100">
-        
+      <div className=" bg-white p-6 sm:p-8 rounded-xl shadow-xl border border-gray-100">
         {/* Type & Name Row */}
         <div className="space-y-8">
-          
           {/* Item Type - Made responsive */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-10">
             <LabelWithInfo>Type</LabelWithInfo>
@@ -151,9 +241,11 @@ const NewItemPage = () => {
                 <input
                   type="radio"
                   name="itemType"
-                  value="goods"
-                  checked={itemType === "goods"}
-                  onChange={() => setItemType("goods")}
+                  value="GOODS"
+                  checked={formData.type === "GOODS"}
+                  onChange={() =>
+                    setFormData((prev) => ({ ...prev, type: "GOODS" }))
+                  }
                   className="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                 />
                 <span className="ml-2 text-gray-700">Goods</span>
@@ -162,9 +254,11 @@ const NewItemPage = () => {
                 <input
                   type="radio"
                   name="itemType"
-                  value="service"
-                  checked={itemType === "service"}
-                  onChange={() => setItemType("service")}
+                  value="SERVICE"
+                  checked={formData.type === "SERVICE"}
+                  onChange={() =>
+                    setFormData((prev) => ({ ...prev, type: "SERVICE" }))
+                  }
                   className="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                 />
                 <span className="ml-2 text-gray-700">Service</span>
@@ -173,40 +267,43 @@ const NewItemPage = () => {
           </div>
 
           {/* Name Input - Changed w-1/2 to be fully responsive */}
-          <div className="w-full md:w-1/2"> 
+          <div className="w-full md:w-1/2">
             <LabeledInput
               id="itemName"
               label="Name"
               required={true}
               type="text"
-              placeholder="Enter item name"
+              value={formData.name}
+              onChange={handleInputChange("name")}
             />
           </div>
 
           {/* Unit Dropdown - Changed w-1/2 to be fully responsive */}
-          <div className="w-full md:w-1/2"> 
+          <div className="w-full md:w-1/2">
             <DropdownSelect
               label="Unit"
               options={UNIT_OPTIONS}
-              defaultValue="KGS"
+              value={formData.unit}
+              onChange={handleInputChange("unit")}
               required={false}
               placeholder="Select or type to add"
             />
           </div>
         </div>
-
         <div className="h-px bg-gray-200 mt-10 mb-8"></div> {/* Separator */}
-
         {/* Sales & Purchase Columns - Layout stacks on mobile (default grid-cols-1) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
           {/* LEFT COLUMN: Sales Information */}
           <div className="space-y-6">
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-lg font-bold text-gray-800">Sales Information</h4>
+              <h4 className="text-lg font-bold text-gray-800">
+                Sales Information
+              </h4>
               <label className="flex items-center text-sm text-gray-700 font-medium cursor-pointer">
                 <input
                   type="checkbox"
-                  defaultChecked
+                  checked={formData.sellable}
+                  onChange={handleCheckboxChange("sellable")}
                   className="form-checkbox h-4 w-4 text-blue-600 rounded mr-2 border-gray-400 focus:ring-blue-500"
                 />
                 Sellable
@@ -215,18 +312,21 @@ const NewItemPage = () => {
 
             {/* Selling Price */}
             <LabeledInput
-                id="sellingPrice"
-                label="Selling Price"
-                required={true}
-                type="number"
-                currency="INR"
+              id="sellingPrice"
+              label="Selling Price"
+              required={true}
+              type="number"
+              value={formData.sellingPrice}
+              onChange={handleInputChange("sellingPrice")}
+              currency="INR"
             />
 
             {/* Sales Account */}
             <DropdownSelect
               label="Account"
               groupOptions={ACCOUNT_OPTIONS}
-              defaultValue="Sales" 
+              value={formData.salesAccount}
+              onChange={handleInputChange("salesAccount")}
               required={true}
               placeholder="Select Sales Account"
             />
@@ -238,6 +338,8 @@ const NewItemPage = () => {
               </label>
               <textarea
                 rows="3"
+                value={formData.salesDescription}
+                onChange={handleInputChange("salesDescription")}
                 className="border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-600 focus:border-blue-600 shadow-sm"
               ></textarea>
             </div>
@@ -253,7 +355,8 @@ const NewItemPage = () => {
               <label className="flex items-center text-sm text-gray-700 font-medium cursor-pointer">
                 <input
                   type="checkbox"
-                  defaultChecked
+                  checked={formData.purchasable}
+                  onChange={handleCheckboxChange("purchasable")}
                   className="form-checkbox h-4 w-4 text-blue-600 rounded mr-2 border-gray-400 focus:ring-blue-500"
                 />
                 Purchasable
@@ -262,18 +365,21 @@ const NewItemPage = () => {
 
             {/* Cost Price */}
             <LabeledInput
-                id="costPrice"
-                label="Cost Price"
-                required={true}
-                type="number"
-                currency="INR"
+              id="costPrice"
+              label="Cost Price"
+              required={true}
+              type="number"
+              value={formData.costPrice}
+              onChange={handleInputChange("costPrice")}
+              currency="INR"
             />
 
             {/* Purchase Account */}
             <DropdownSelect
               label="Account"
               groupOptions={ACCOUNT_OPTIONS}
-              defaultValue="Cost of Goods Sold"
+              value={formData.purchaseAccount}
+              onChange={handleInputChange("purchaseAccount")}
               required={true}
               placeholder="Select Purchase Account"
             />
@@ -285,6 +391,8 @@ const NewItemPage = () => {
               </label>
               <textarea
                 rows="3"
+                value={formData.purchaseDescription}
+                onChange={handleInputChange("purchaseDescription")}
                 className="border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-600 focus:border-blue-600 shadow-sm"
               ></textarea>
             </div>
@@ -296,6 +404,8 @@ const NewItemPage = () => {
               </label>
               <input
                 type="text"
+                value={formData.preferredVendor}
+                onChange={handleInputChange("preferredVendor")}
                 className="border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-blue-600 focus:border-blue-600 shadow-sm"
                 placeholder="Select or type to add"
               />
