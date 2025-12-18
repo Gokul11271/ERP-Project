@@ -11,8 +11,8 @@ services:
   - type: web
     name: erp-backend
     runtime: docker
-    dockerfilePath: ./Backend/Dockerfile
-    dockerContext: ./Backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     region: oregon # or singapore, frankfurt, ohio
     plan: free # free, starter, standard, pro
 
@@ -28,7 +28,7 @@ services:
       - key: JWT_EXPIRATION
         value: 86400000
       - key: CORS_ORIGINS
-        sync: false # Set this manually to your frontend URL
+        value: https://erp-project-orcin.vercel.app
       - key: DATABASE_URL
         fromDatabase:
           name: erp-database
