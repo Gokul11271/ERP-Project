@@ -28,7 +28,7 @@ services:
       - key: JWT_EXPIRATION
         value: 86400000
       - key: CORS_ORIGINS
-        value: https://erp-project-orcin.vercel.app
+        value: https://erp-project-1.vercel.app,https://erp-project-orcin.vercel.app
       # Database credentials (Neon PostgreSQL)
       - key: DATABASE_URL
         value: jdbc:postgresql://ep-green-brook-ahji74ts-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require
