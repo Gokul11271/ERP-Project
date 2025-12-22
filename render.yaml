@@ -30,9 +30,10 @@ services:
       - key: CORS_ORIGINS
         value: https://erp-project-orcin.vercel.app
       # Database credentials (Supabase PostgreSQL)
+      # Note: Using session mode (port 5432) for better compatibility
       - key: DATABASE_URL
         value: jdbc:postgresql://db.uzjtuknqawujxhtrakbs.supabase.co:5432/postgres?sslmode=require
       - key: DATABASE_USER
         value: postgres
       - key: DATABASE_PASSWORD
-        value: Zaq1@wsx1234
+        value: "Zaq1@wsx1234"
