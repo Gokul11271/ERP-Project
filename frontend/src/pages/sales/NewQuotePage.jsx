@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { PlusCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  PlusCircleIcon,
+  TrashIcon,
+  XMarkIcon,
+  ArrowLeftIcon,
+  DocumentTextIcon,
+} from "@heroicons/react/24/outline";
 import { quotesService } from "../../services/quotesService";
 
+/**
+ * NewQuotePage - Material Design 3 (Google Store Aesthetic)
+ */
 const NewQuotePage = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const [formData, setFormData] = useState({
     customerName: "",
     quoteNumber: "QT-000001",
@@ -63,166 +76,284 @@ const NewQuotePage = () => {
     return formData.items.reduce((sum, item) => sum + (item.amount || 0), 0);
   };
 
+  // Input component with MD3 styling
+  const FormInput = ({
+    label,
+    required,
+    type = "text",
+    name,
+    value,
+    onChange,
+    placeholder,
+  }) => (
+    <div>
+      <label
+        className="block text-sm font-medium mb-2"
+        style={{ color: required ? "#d93025" : "#202124" }}
+      >
+        {label}
+        {required && "*"}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full px-4 py-3 text-sm transition-all duration-200"
+        style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid #dadce0",
+          borderRadius: "8px",
+          color: "#202124",
+        }}
+      />
+    </div>
+  );
+
+  // Select component with MD3 styling
+  const FormSelect = ({
+    label,
+    required,
+    name,
+    value,
+    onChange,
+    children,
+    hint,
+  }) => (
+    <div>
+      <label
+        className="block text-sm font-medium mb-2"
+        style={{ color: required ? "#d93025" : "#202124" }}
+      >
+        {label}
+        {required && "*"}
+      </label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer"
+        style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid #dadce0",
+          borderRadius: "8px",
+          color: "#202124",
+        }}
+      >
+        {children}
+      </select>
+      {hint && (
+        <p className="text-xs mt-1.5" style={{ color: "#5f6368" }}>
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+
   return (
-    <div className="">
+    <div
+      className="p-6 sm:p-8"
+      style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}
+    >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">New Quote</h1>
-        <Link to="/sales/quotes" className="text-gray-500 hover:text-gray-700">
-          <span className="text-2xl">&times;</span>
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center gap-4">
+          <Link
+            to="/sales/quotes"
+            className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+            style={{ color: "#5f6368" }}
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+          </Link>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: "#e8f0fe" }}
+            >
+              <DocumentTextIcon
+                className="w-5 h-5"
+                style={{ color: "#1a73e8" }}
+              />
+            </div>
+            <h1 className="text-2xl font-normal" style={{ color: "#202124" }}>
+              New Quote
+            </h1>
+          </div>
+        </div>
+        <Link
+          to="/sales/quotes"
+          className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+          style={{ color: "#5f6368" }}
+        >
+          <XMarkIcon className="w-5 h-5" />
         </Link>
       </div>
 
       {/* Form Container */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 space-y-8">
+      <div
+        className="p-6 sm:p-8 space-y-8"
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "24px",
+          boxShadow:
+            "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15)",
+        }}
+      >
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-red-500 mb-1">
-                Customer Name*
-              </label>
-              <select
-                name="customerName"
-                value={formData.customerName}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              >
-                <option value="">Select or add a customer</option>
-                <option value="Customer A">Customer A</option>
-                <option value="Customer B">Customer B</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-red-500 mb-1">
-                Quote#*
-              </label>
-              <input
-                type="text"
-                name="quoteNumber"
-                value={formData.quoteNumber}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Reference#
-              </label>
-              <input
-                type="text"
-                name="referenceNumber"
-                value={formData.referenceNumber}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              />
-            </div>
+          <div className="space-y-5">
+            <FormSelect
+              label="Customer Name"
+              required
+              name="customerName"
+              value={formData.customerName}
+              onChange={handleInputChange}
+            >
+              <option value="">Select or add a customer</option>
+              <option value="Customer A">Customer A</option>
+              <option value="Customer B">Customer B</option>
+            </FormSelect>
+
+            <FormInput
+              label="Quote#"
+              required
+              name="quoteNumber"
+              value={formData.quoteNumber}
+              onChange={handleInputChange}
+            />
+
+            <FormInput
+              label="Reference#"
+              name="referenceNumber"
+              value={formData.referenceNumber}
+              onChange={handleInputChange}
+            />
           </div>
-          <div className="space-y-4">
+
+          <div className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-red-500 mb-1">
-                  Quote Date*
-                </label>
-                <input
-                  type="date"
-                  name="quoteDate"
-                  value={formData.quoteDate}
-                  onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Expiry Date
-                </label>
-                <input
-                  type="date"
-                  name="expiryDate"
-                  value={formData.expiryDate}
-                  onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Salesperson
-              </label>
-              <select
-                name="salesperson"
-                value={formData.salesperson}
+              <FormInput
+                label="Quote Date"
+                required
+                type="date"
+                name="quoteDate"
+                value={formData.quoteDate}
                 onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              >
-                <option value="">Select or Add Salesperson</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Project Name
-              </label>
-              <select
-                name="projectName"
-                value={formData.projectName}
+              />
+              <FormInput
+                label="Expiry Date"
+                type="date"
+                name="expiryDate"
+                value={formData.expiryDate}
                 onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              >
-                <option value="">Select a project</option>
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Select a customer to associate a project.
-              </p>
+              />
             </div>
+
+            <FormSelect
+              label="Salesperson"
+              name="salesperson"
+              value={formData.salesperson}
+              onChange={handleInputChange}
+            >
+              <option value="">Select or Add Salesperson</option>
+            </FormSelect>
+
+            <FormSelect
+              label="Project Name"
+              name="projectName"
+              value={formData.projectName}
+              onChange={handleInputChange}
+              hint="Select a customer to associate a project."
+            >
+              <option value="">Select a project</option>
+            </FormSelect>
           </div>
         </div>
 
         {/* Subject */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-          <label className="md:col-span-2 text-sm font-medium text-gray-700">
+        <div>
+          <label
+            className="block text-sm font-medium mb-2"
+            style={{ color: "#202124" }}
+          >
             Subject
           </label>
-          <div className="md:col-span-10">
-            <textarea
-              name="subject"
-              rows="2"
-              placeholder="Let your customer know what this Quote is for"
-              value={formData.subject}
-              onChange={handleInputChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            />
-          </div>
+          <textarea
+            name="subject"
+            rows="3"
+            placeholder="Let your customer know what this Quote is for"
+            value={formData.subject}
+            onChange={handleInputChange}
+            className="w-full px-4 py-3 text-sm transition-all duration-200 resize-none"
+            style={{
+              backgroundColor: "#ffffff",
+              border: "1px solid #dadce0",
+              borderRadius: "8px",
+              color: "#202124",
+            }}
+          />
         </div>
 
+        {/* Divider */}
+        <div style={{ height: "1px", backgroundColor: "#e8eaed" }} />
+
         {/* Item Table */}
-        <div className="mt-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Item Table</h3>
-          <div className="overflow-x-auto border border-gray-200 rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+        <div>
+          <h3 className="text-lg font-medium mb-4" style={{ color: "#202124" }}>
+            Item Table
+          </h3>
+
+          <div
+            className="overflow-x-auto"
+            style={{
+              border: "1px solid #e8eaed",
+              borderRadius: "16px",
+            }}
+          >
+            <table
+              className="min-w-full divide-y"
+              style={{ borderColor: "#e8eaed" }}
+            >
+              <thead style={{ backgroundColor: "#f8f9fa" }}>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">
+                  <th
+                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-1/2"
+                    style={{ color: "#5f6368" }}
+                  >
                     Item Details
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider"
+                    style={{ color: "#5f6368" }}
+                  >
                     Quantity
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider"
+                    style={{ color: "#5f6368" }}
+                  >
                     Rate
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider"
+                    style={{ color: "#5f6368" }}
+                  >
                     Discount (%)
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider"
+                    style={{ color: "#5f6368" }}
+                  >
                     Amount
                   </th>
                   <th className="px-4 py-3 w-10"></th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y" style={{ borderColor: "#e8eaed" }}>
                 {formData.items.map((item, index) => (
-                  <tr key={index}>
-                    <td className="px-4 py-2">
+                  <tr key={index} style={{ backgroundColor: "#ffffff" }}>
+                    <td className="px-4 py-3">
                       <input
                         type="text"
                         placeholder="Type or click to select an item."
@@ -230,49 +361,77 @@ const NewQuotePage = () => {
                         onChange={(e) =>
                           handleItemChange(index, "details", e.target.value)
                         }
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1"
+                        className="w-full px-3 py-2 text-sm"
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          border: "none",
+                          borderRadius: "6px",
+                          color: "#202124",
+                        }}
                       />
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-3">
                       <input
                         type="number"
                         value={item.quantity}
                         onChange={(e) =>
                           handleItemChange(index, "quantity", e.target.value)
                         }
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1 text-right"
+                        className="w-full px-3 py-2 text-sm text-right"
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          border: "none",
+                          borderRadius: "6px",
+                          color: "#202124",
+                        }}
                       />
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-3">
                       <input
                         type="number"
                         value={item.rate}
                         onChange={(e) =>
                           handleItemChange(index, "rate", e.target.value)
                         }
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1 text-right"
+                        className="w-full px-3 py-2 text-sm text-right"
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          border: "none",
+                          borderRadius: "6px",
+                          color: "#202124",
+                        }}
                       />
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-3">
                       <input
                         type="number"
                         value={item.discount}
                         onChange={(e) =>
                           handleItemChange(index, "discount", e.target.value)
                         }
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1 text-right"
+                        className="w-full px-3 py-2 text-sm text-right"
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          border: "none",
+                          borderRadius: "6px",
+                          color: "#202124",
+                        }}
                       />
                     </td>
-                    <td className="px-4 py-2 text-right text-sm font-medium text-gray-900">
-                      {item.amount.toFixed(2)}
+                    <td
+                      className="px-4 py-3 text-right text-sm font-medium"
+                      style={{ color: "#202124" }}
+                    >
+                      ₹{item.amount.toFixed(2)}
                     </td>
-                    <td className="px-4 py-2 text-center">
+                    <td className="px-4 py-3 text-center">
                       {formData.items.length > 1 && (
                         <button
                           onClick={() => removeItem(index)}
-                          className="text-red-400 hover:text-red-600"
+                          className="p-1.5 rounded-full transition-all duration-200 hover:bg-red-50"
+                          style={{ color: "#d93025" }}
                         >
-                          <TrashIcon className="w-5 h-5" />
+                          <TrashIcon className="w-4 h-4" />
                         </button>
                       )}
                     </td>
@@ -281,10 +440,16 @@ const NewQuotePage = () => {
               </tbody>
             </table>
           </div>
+
           <button
             type="button"
             onClick={addItem}
-            className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="mt-4 inline-flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200"
+            style={{
+              backgroundColor: "#e8f0fe",
+              color: "#1a73e8",
+              borderRadius: "9999px",
+            }}
           >
             <PlusCircleIcon className="w-5 h-5 mr-2" />
             Add another line
@@ -292,14 +457,33 @@ const NewQuotePage = () => {
 
           {/* Total Section */}
           <div className="mt-8 flex justify-end">
-            <div className="w-full md:w-1/3 space-y-4">
-              <div className="flex justify-between text-sm font-medium text-gray-700">
+            <div
+              className="w-full md:w-1/3 p-5"
+              style={{
+                backgroundColor: "#f8f9fa",
+                borderRadius: "16px",
+              }}
+            >
+              <div
+                className="flex justify-between text-sm font-medium mb-3"
+                style={{ color: "#5f6368" }}
+              >
                 <span>Sub Total</span>
-                <span>{calculateTotal().toFixed(2)}</span>
+                <span>₹{calculateTotal().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-base font-bold text-gray-900 border-t pt-4">
+              <div
+                style={{
+                  height: "1px",
+                  backgroundColor: "#e8eaed",
+                  margin: "12px 0",
+                }}
+              />
+              <div
+                className="flex justify-between text-base font-medium"
+                style={{ color: "#202124" }}
+              >
                 <span>Total (INR)</span>
-                <span>{calculateTotal().toFixed(2)}</span>
+                <span>₹{calculateTotal().toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -307,16 +491,35 @@ const NewQuotePage = () => {
       </div>
 
       {/* Footer Buttons */}
-      <div className="mt-8 flex justify-start space-x-4 pb-8">
-        <button className="py-2 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow-sm">
+      <div className="mt-8 flex justify-start gap-3 pb-8">
+        <button
+          className="py-3 px-6 text-sm font-medium transition-all duration-200"
+          style={{
+            backgroundColor: "#ffffff",
+            color: "#5f6368",
+            border: "1px solid #dadce0",
+            borderRadius: "9999px",
+          }}
+        >
           Save as Draft
         </button>
-        <button className="py-2 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <button
+          className="py-3 px-6 text-sm font-medium text-white transition-all duration-200"
+          style={{
+            backgroundColor: "#1a73e8",
+            borderRadius: "9999px",
+          }}
+        >
           Save and Send
         </button>
         <Link
           to="/sales/quotes"
-          className="py-2 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow-sm"
+          className="py-3 px-6 text-sm font-medium transition-all duration-200"
+          style={{
+            backgroundColor: "transparent",
+            color: "#1a73e8",
+            borderRadius: "9999px",
+          }}
         >
           Cancel
         </Link>

@@ -9,11 +9,14 @@ import {
   Bars3Icon,
   UserCircleIcon,
   ArrowLeftEndOnRectangleIcon,
-  UserPlusIcon, // New Icon for the Settings Modal
+  UserPlusIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { logout, getUserRole } from "../services/authService";
 
-// --- New Settings Modal Component ---
+/**
+ * Settings Modal - Material Design 3
+ */
 const SettingsModal = ({ onClose }) => {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("User");
@@ -21,39 +24,55 @@ const SettingsModal = ({ onClose }) => {
 
   const handleInvite = (e) => {
     e.preventDefault();
-
     if (!email) {
       setStatus({ message: "Email is required.", type: "error" });
       return;
     }
-
-    // TODO: Implement real Supabase user invitation
-    // This requires Supabase admin API or creating users via Supabase dashboard
     setStatus({
       message:
         "User invitation is currently done via Supabase Dashboard. Go to Authentication > Users to add new users with the appropriate role.",
       type: "error",
     });
-
-    // Clear status after a delay
     setTimeout(() => setStatus({ message: "", type: "" }), 5000);
   };
 
   return (
-    // Full screen backdrop with modal card
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4 transition-all duration-300">
-      <div className="bg-white rounded-xl shadow-xl-2 w-full max-w-lg overflow-hidden animate-in zoom-in-50 duration-500">
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.32)" }}
+    >
+      <div
+        className="w-full max-w-lg overflow-hidden animate-fade-in"
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "28px",
+          boxShadow:
+            "0 8px 12px 6px rgba(60, 64, 67, 0.15), 0 4px 4px 0 rgba(60, 64, 67, 0.3)",
+        }}
+      >
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h3 className="text-xl font-bold text-gray-800 flex items-center space-x-2">
-            <UserPlusIcon className="w-6 h-6 text-blue-600" />
-            <span>Manage Users & Access</span>
+        <div
+          className="flex justify-between items-center p-6"
+          style={{ borderBottom: "1px solid #e8eaed" }}
+        >
+          <h3
+            className="text-xl font-medium flex items-center gap-3"
+            style={{ color: "#202124" }}
+          >
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: "#e8f0fe" }}
+            >
+              <UserPlusIcon className="w-5 h-5" style={{ color: "#1a73e8" }} />
+            </div>
+            Manage Users & Access
           </h3>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition"
+            className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+            style={{ color: "#5f6368" }}
           >
-            <ArrowLeftEndOnRectangleIcon className="w-5 h-5 rotate-90" />
+            <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
@@ -62,11 +81,12 @@ const SettingsModal = ({ onClose }) => {
           {/* Status Message */}
           {status.message && (
             <div
-              className={`p-3 rounded-lg text-sm font-medium border ${
-                status.type === "success"
-                  ? "bg-green-50 text-green-700 border-green-300"
-                  : "bg-red-50 text-red-700 border-red-300"
-              }`}
+              className="p-4 rounded-xl text-sm font-medium"
+              style={{
+                backgroundColor:
+                  status.type === "success" ? "#e6f4ea" : "#fce8e6",
+                color: status.type === "success" ? "#1e8e3e" : "#d93025",
+              }}
             >
               {status.message}
             </div>
@@ -76,7 +96,8 @@ const SettingsModal = ({ onClose }) => {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium mb-2"
+              style={{ color: "#202124" }}
             >
               User Email (for Invitation)
             </label>
@@ -86,24 +107,36 @@ const SettingsModal = ({ onClose }) => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-12 px-4 border border-gray-300 rounded-lg text-base focus:ring-blue-600 focus:border-blue-600 transition duration-200"
+              className="w-full h-12 px-4 text-base transition duration-200"
+              style={{
+                border: "1px solid #dadce0",
+                borderRadius: "8px",
+                color: "#202124",
+              }}
               placeholder="user@newcompany.com"
             />
           </div>
 
           {/* Role Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              className="block text-sm font-medium mb-3"
+              style={{ color: "#202124" }}
+            >
               Assign Role
             </label>
-            <div className="flex space-x-4">
+            <div className="flex gap-4">
               {/* Admin Role */}
               <label
-                className={`flex items-center p-3 rounded-lg border cursor-pointer w-1/2 transition ${
-                  role === "Admin"
-                    ? "border-blue-500 bg-blue-50 shadow-md"
-                    : "border-gray-300 bg-white hover:bg-gray-100"
-                }`}
+                className="flex items-center p-4 cursor-pointer w-1/2 transition-all duration-200"
+                style={{
+                  backgroundColor: role === "Admin" ? "#e8f0fe" : "#ffffff",
+                  border:
+                    role === "Admin"
+                      ? "2px solid #1a73e8"
+                      : "1px solid #dadce0",
+                  borderRadius: "16px",
+                }}
               >
                 <input
                   type="radio"
@@ -111,11 +144,17 @@ const SettingsModal = ({ onClose }) => {
                   value="Admin"
                   checked={role === "Admin"}
                   onChange={() => setRole("Admin")}
-                  className="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  className="form-radio h-4 w-4"
+                  style={{ accentColor: "#1a73e8" }}
                 />
                 <div className="ml-3">
-                  <p className="text-sm font-semibold text-gray-900">Admin</p>
-                  <p className="text-xs text-gray-500">
+                  <p
+                    className="text-sm font-medium"
+                    style={{ color: "#202124" }}
+                  >
+                    Admin
+                  </p>
+                  <p className="text-xs" style={{ color: "#5f6368" }}>
                     Full access & configuration
                   </p>
                 </div>
@@ -123,11 +162,13 @@ const SettingsModal = ({ onClose }) => {
 
               {/* Staff Role */}
               <label
-                className={`flex items-center p-3 rounded-lg border cursor-pointer w-1/2 transition ${
-                  role === "User"
-                    ? "border-blue-500 bg-blue-50 shadow-md"
-                    : "border-gray-300 bg-white hover:bg-gray-100"
-                }`}
+                className="flex items-center p-4 cursor-pointer w-1/2 transition-all duration-200"
+                style={{
+                  backgroundColor: role === "User" ? "#e8f0fe" : "#ffffff",
+                  border:
+                    role === "User" ? "2px solid #1a73e8" : "1px solid #dadce0",
+                  borderRadius: "16px",
+                }}
               >
                 <input
                   type="radio"
@@ -135,11 +176,17 @@ const SettingsModal = ({ onClose }) => {
                   value="User"
                   checked={role === "User"}
                   onChange={() => setRole("User")}
-                  className="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  className="form-radio h-4 w-4"
+                  style={{ accentColor: "#1a73e8" }}
                 />
                 <div className="ml-3">
-                  <p className="text-sm font-semibold text-gray-900">Staff</p>
-                  <p className="text-xs text-gray-500">
+                  <p
+                    className="text-sm font-medium"
+                    style={{ color: "#202124" }}
+                  >
+                    Staff
+                  </p>
+                  <p className="text-xs" style={{ color: "#5f6368" }}>
                     Sales, Purchase & time tracking
                   </p>
                 </div>
@@ -148,17 +195,25 @@ const SettingsModal = ({ onClose }) => {
           </div>
 
           {/* Footer / Submit */}
-          <div className="flex justify-end pt-4 space-x-3">
+          <div className="flex justify-end pt-4 gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="py-2 px-4 text-sm font-semibold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
+              className="py-3 px-6 text-sm font-medium transition-all duration-200 hover:bg-gray-100"
+              style={{
+                color: "#1a73e8",
+                borderRadius: "9999px",
+              }}
             >
-              Close
+              Cancel
             </button>
             <button
               type="submit"
-              className="py-2 px-4 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-md-2 hover:bg-blue-700 transition"
+              className="py-3 px-6 text-sm font-medium text-white transition-all duration-200"
+              style={{
+                backgroundColor: "#1a73e8",
+                borderRadius: "9999px",
+              }}
             >
               Invite User
             </button>
@@ -168,25 +223,42 @@ const SettingsModal = ({ onClose }) => {
     </div>
   );
 };
-// --- End Settings Modal Component ---
 
-// --- New Profile Popup Component ---
+/**
+ * Profile Popup - Material Design 3
+ */
 const ProfilePopup = ({ role, onLogout }) => (
-  <div className="absolute right-0 top-14 mt-2 w-64 bg-white rounded-xl shadow-xl-2 border border-gray-100 z-20 overflow-hidden animate-in fade-in slide-in-from-top-1">
+  <div
+    className="absolute right-0 top-14 mt-2 w-64 z-20 overflow-hidden animate-fade-in"
+    style={{
+      backgroundColor: "#ffffff",
+      borderRadius: "16px",
+      boxShadow:
+        "0 4px 8px 3px rgba(60, 64, 67, 0.15), 0 1px 3px 0 rgba(60, 64, 67, 0.3)",
+    }}
+  >
     {/* User Info Section */}
-    <div className="p-4 border-b border-gray-100 flex items-center space-x-3">
-      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-        <UserCircleIcon className="w-6 h-6" />
+    <div
+      className="p-4 flex items-center gap-3"
+      style={{ borderBottom: "1px solid #e8eaed" }}
+    >
+      <div
+        className="w-10 h-10 rounded-full flex items-center justify-center"
+        style={{ backgroundColor: "#e8f0fe" }}
+      >
+        <UserCircleIcon className="w-6 h-6" style={{ color: "#1a73e8" }} />
       </div>
       <div>
-        <p className="text-sm font-semibold text-gray-900">Arulmani.G</p>
-        {/* Role Display */}
+        <p className="text-sm font-medium" style={{ color: "#202124" }}>
+          Arulmani.G
+        </p>
         <span
-          className={`text-xs font-medium px-2 py-0.5 rounded-full mt-1 inline-block ${
-            role === "Admin"
-              ? "bg-red-100 text-red-600"
-              : "bg-green-100 text-green-600"
-          }`}
+          className="text-xs font-medium px-2 py-0.5 mt-1 inline-block"
+          style={{
+            backgroundColor: role === "Admin" ? "#fce8e6" : "#e6f4ea",
+            color: role === "Admin" ? "#d93025" : "#1e8e3e",
+            borderRadius: "9999px",
+          }}
         >
           {role || "Staff"}
         </span>
@@ -197,7 +269,11 @@ const ProfilePopup = ({ role, onLogout }) => (
     <div className="p-2">
       <button
         onClick={onLogout}
-        className="w-full flex items-center space-x-3 p-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition duration-200"
+        className="w-full flex items-center gap-3 p-3 text-sm font-medium transition duration-200 hover:bg-red-50"
+        style={{
+          color: "#d93025",
+          borderRadius: "12px",
+        }}
       >
         <ArrowLeftEndOnRectangleIcon className="w-5 h-5" />
         <span>Log Out</span>
@@ -205,8 +281,10 @@ const ProfilePopup = ({ role, onLogout }) => (
     </div>
   </div>
 );
-// --- End Profile Popup Component ---
 
+/**
+ * Header Component - Material Design 3
+ */
 const Header = ({ onMenuClick, onSettingsClick }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const navigate = useNavigate();
@@ -218,71 +296,96 @@ const Header = ({ onMenuClick, onSettingsClick }) => {
   };
 
   return (
-    <header className="flex items-center justify-between h-16 bg-white border-b border-gray-100 px-4 sm:px-6 shadow-soft-md z-10">
+    <header
+      className="flex items-center justify-between h-16 px-4 sm:px-6 z-10"
+      style={{
+        backgroundColor: "#ffffff",
+        borderBottom: "1px solid #e8eaed",
+      }}
+    >
       {/* Left Side: Mobile Menu Button + Company Info */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
+          className="lg:hidden p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+          style={{ color: "#5f6368" }}
         >
-          <Bars3Icon className="w-6 h-6 text-gray-600" />
+          <Bars3Icon className="w-6 h-6" />
         </button>
 
         <div className="flex flex-col">
-          <div className="font-extrabold text-gray-900 text-lg">
+          <div className="font-medium text-base" style={{ color: "#202124" }}>
             Hello, Arulmani.G
           </div>
-          <div className="text-xs text-gray-500 font-medium">
+          <div className="text-xs" style={{ color: "#5f6368" }}>
             Kayaa Electronics Pvt Ltd
           </div>
         </div>
       </div>
 
-      {/* Right Side: User Actions / Help */}
-      <div className="flex items-center space-x-2 sm:space-x-3 relative">
+      {/* Right Side: User Actions */}
+      <div className="flex items-center gap-2 sm:gap-3 relative">
         {/* Search Input */}
         <div className="relative hidden md:block">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <MagnifyingGlassIcon
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4"
+            style={{ color: "#80868b" }}
+          />
           <input
             type="text"
             placeholder="Search..."
-            className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 w-56 transition-all duration-200 bg-gray-50 hover:bg-white"
+            className="pl-10 pr-4 py-2 text-sm w-56 transition-all duration-200"
+            style={{
+              backgroundColor: "#f1f3f4",
+              border: "none",
+              borderRadius: "8px",
+              color: "#202124",
+            }}
           />
         </div>
 
-        <button className="p-2 rounded-lg hover:bg-gray-100 transition-all duration-200 hidden sm:block relative">
-          <BellIcon className="w-5 h-5 text-gray-600" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
-        </button>
-        <button className="p-2 rounded-lg hover:bg-gray-100 transition-all duration-200 hidden sm:block">
-          <QuestionMarkCircleIcon className="w-5 h-5 text-gray-600" />
+        {/* Notification Bell */}
+        <button
+          className="p-2 rounded-full transition-all duration-200 hidden sm:block relative hover:bg-gray-100"
+          style={{ color: "#5f6368" }}
+        >
+          <BellIcon className="w-5 h-5" />
+          <span
+            className="absolute top-2 right-2 w-2 h-2 rounded-full"
+            style={{ backgroundColor: "#d93025" }}
+          />
         </button>
 
-        {/* Settings Icon - Now opens the User Management Modal (Admin check implied on click) */}
+        {/* Help */}
+        <button
+          className="p-2 rounded-full transition-all duration-200 hidden sm:block hover:bg-gray-100"
+          style={{ color: "#5f6368" }}
+        >
+          <QuestionMarkCircleIcon className="w-5 h-5" />
+        </button>
+
+        {/* Settings */}
         <button
           onClick={onSettingsClick}
           disabled={userRole !== "Admin"}
-          className={`p-2 rounded-lg transition-all duration-200
-                ${
-                  userRole === "Admin"
-                    ? "hover:bg-gray-100 text-gray-600"
-                    : "text-gray-400 cursor-not-allowed"
-                }
-              `}
+          className={`p-2 rounded-full transition-all duration-200 ${
+            userRole === "Admin" ? "hover:bg-gray-100" : "cursor-not-allowed"
+          }`}
+          style={{ color: userRole === "Admin" ? "#5f6368" : "#9aa0a6" }}
         >
           <Cog8ToothIcon className="w-5 h-5" />
         </button>
 
-        {/* User Avatar (Profile Dropdown Trigger) */}
+        {/* User Avatar */}
         <div className="relative">
           <button
             onClick={() => setIsPopupOpen(!isPopupOpen)}
-            className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer ring-2 ring-offset-2 ring-primary-300 transform hover:scale-105 transition-all duration-200 shadow-soft-md"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium cursor-pointer transition-all duration-200 hover:opacity-90"
+            style={{ backgroundColor: "#1a73e8" }}
           >
             AG
           </button>
 
-          {/* Conditional Popup Rendering */}
           {isPopupOpen && (
             <ProfilePopup role={userRole} onLogout={handleLogout} />
           )}
@@ -292,6 +395,10 @@ const Header = ({ onMenuClick, onSettingsClick }) => {
   );
 };
 
+/**
+ * DashboardLayout - Material Design 3
+ * Main layout wrapper with sidebar and header
+ */
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -311,32 +418,35 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar and Overlay */}
+      {/* Sidebar */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      {/* Mobile Overlay (Only visible when sidebar is open on small screens) */}
+      {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.32)" }}
           onClick={() => setIsSidebarOpen(false)}
-        ></div>
+        />
       )}
 
-      {/* Settings Modal - Rendered on top of everything */}
+      {/* Settings Modal */}
       {isSettingsModalOpen && userRole === "Admin" && (
         <SettingsModal onClose={() => setIsSettingsModalOpen(false)} />
       )}
 
       {/* Main Content Container */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Pass toggleSidebar and handleSettingsClick functions to Header */}
         <Header
           onMenuClick={toggleSidebar}
           onSettingsClick={handleSettingsClick}
         />
 
-        {/* Main Content Area - Soft background */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100/50">
+        {/* Main Content Area */}
+        <main
+          className="flex-1 overflow-x-hidden overflow-y-auto"
+          style={{ backgroundColor: "#f8f9fa" }}
+        >
           <Outlet />
         </main>
       </div>

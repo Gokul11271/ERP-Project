@@ -4,16 +4,20 @@ import {
   UserPlusIcon,
   ArrowUpTrayIcon,
   TrashIcon,
-  EllipsisVerticalIcon,
   PlusCircleIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  ArrowLeftIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { createCustomer } from "../../services/customersService";
 
+/**
+ * NewCustomerPage - Material Design 3 (Google Store Aesthetic)
+ */
 const NewCustomerPage = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("other");
+  const [activeTab, setActiveTab] = useState("details");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -27,8 +31,6 @@ const NewCustomerPage = () => {
     email: "",
     workPhone: "",
     mobilePhone: "",
-    language: "English",
-    pan: "",
     currency: "INR",
     openingBalance: "",
     paymentTerms: "Due on Receipt",
@@ -41,7 +43,6 @@ const NewCustomerPage = () => {
     billingState: "",
     billingPinCode: "",
     billingPhone: "",
-    billingFax: "",
     shippingAttention: "",
     shippingCountry: "",
     shippingAddress1: "",
@@ -50,8 +51,6 @@ const NewCustomerPage = () => {
     shippingState: "",
     shippingPinCode: "",
     shippingPhone: "",
-    shippingFax: "",
-    remarks: "",
     contactPersons: [
       {
         salutation: "Mr.",
@@ -62,6 +61,7 @@ const NewCustomerPage = () => {
         mobile: "",
       },
     ],
+    remarks: "",
   });
 
   const handleInputChange = (e) => {
@@ -75,10 +75,7 @@ const NewCustomerPage = () => {
   const handleContactPersonChange = (index, field, value) => {
     const updatedContactPersons = [...formData.contactPersons];
     updatedContactPersons[index][field] = value;
-    setFormData((prev) => ({
-      ...prev,
-      contactPersons: updatedContactPersons,
-    }));
+    setFormData((prev) => ({ ...prev, contactPersons: updatedContactPersons }));
   };
 
   const addContactPerson = () => {
@@ -118,26 +115,19 @@ const NewCustomerPage = () => {
       shippingState: prev.billingState,
       shippingPinCode: prev.billingPinCode,
       shippingPhone: prev.billingPhone,
-      shippingFax: prev.billingFax,
     }));
   };
 
-  // Handle form submission
   const handleSave = async () => {
-    // Validate required fields
     if (!formData.displayName.trim()) {
       setError("Display Name is required");
       return;
     }
-
     setLoading(true);
     setError(null);
-    setSuccess(false);
-
     try {
-      // Transform form data to match backend API
       const customerData = {
-        customerType: formData.customerType.toUpperCase(), // BUSINESS or INDIVIDUAL
+        customerType: formData.customerType.toUpperCase(),
         salutation: formData.salutation,
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -146,8 +136,6 @@ const NewCustomerPage = () => {
         email: formData.email,
         workPhone: formData.workPhone,
         mobilePhone: formData.mobilePhone,
-        language: formData.language,
-        pan: formData.pan,
         currency: formData.currency,
         openingBalance: formData.openingBalance
           ? parseFloat(formData.openingBalance)
@@ -162,7 +150,6 @@ const NewCustomerPage = () => {
         billingState: formData.billingState,
         billingPinCode: formData.billingPinCode,
         billingPhone: formData.billingPhone,
-        billingFax: formData.billingFax,
         shippingAttention: formData.shippingAttention,
         shippingCountry: formData.shippingCountry,
         shippingAddress1: formData.shippingAddress1,
@@ -171,18 +158,12 @@ const NewCustomerPage = () => {
         shippingState: formData.shippingState,
         shippingPinCode: formData.shippingPinCode,
         shippingPhone: formData.shippingPhone,
-        shippingFax: formData.shippingFax,
         contactPersons: formData.contactPersons,
-        remarks: formData.remarks || "",
+        remarks: formData.remarks,
       };
-
       await createCustomer(customerData);
       setSuccess(true);
-
-      // Redirect to customers list after a short delay
-      setTimeout(() => {
-        navigate("/sales/customers");
-      }, 1500);
+      setTimeout(() => navigate("/sales/customers"), 1500);
     } catch (err) {
       setError(err.message || "Failed to create customer");
     } finally {
@@ -190,28 +171,120 @@ const NewCustomerPage = () => {
     }
   };
 
+  // Form Input Component - MD3
+  const FormInput = ({
+    label,
+    required,
+    type = "text",
+    name,
+    value,
+    onChange,
+    placeholder,
+  }) => (
+    <div>
+      <label
+        className="block text-sm font-medium mb-2"
+        style={{ color: required ? "#d93025" : "#202124" }}
+      >
+        {label}
+        {required && "*"}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full px-4 py-3 text-sm transition-all duration-200 focus:outline-none"
+        style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid #dadce0",
+          borderRadius: "8px",
+          color: "#202124",
+        }}
+      />
+    </div>
+  );
+
+  // Form Select Component - MD3
+  const FormSelect = ({ label, required, name, value, onChange, children }) => (
+    <div>
+      <label
+        className="block text-sm font-medium mb-2"
+        style={{ color: required ? "#d93025" : "#202124" }}
+      >
+        {label}
+        {required && "*"}
+      </label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer focus:outline-none"
+        style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid #dadce0",
+          borderRadius: "8px",
+          color: "#202124",
+        }}
+      >
+        {children}
+      </select>
+    </div>
+  );
+
+  const tabs = [
+    { key: "details", label: "Details" },
+    { key: "address", label: "Address" },
+    { key: "contacts", label: "Contact Persons" },
+    { key: "remarks", label: "Remarks" },
+  ];
+
   return (
-    <div className="p-4 sm:p-8 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-          <UserPlusIcon className="w-8 h-8 text-blue-600" />
-          <span>New Customer</span>
-        </h1>
-        <div className="flex space-x-3">
+    <div
+      className="p-6 sm:p-8"
+      style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}
+    >
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center gap-4">
           <Link
             to="/sales/customers"
-            className="py-2 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow-sm"
+            className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+            style={{ color: "#5f6368" }}
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+          </Link>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: "#e8f0fe" }}
+            >
+              <UserPlusIcon className="w-5 h-5" style={{ color: "#1a73e8" }} />
+            </div>
+            <h1 className="text-2xl font-normal" style={{ color: "#202124" }}>
+              New Customer
+            </h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/sales/customers"
+            className="py-3 px-6 text-sm font-medium transition-all duration-200"
+            style={{
+              backgroundColor: "#ffffff",
+              color: "#5f6368",
+              border: "1px solid #dadce0",
+              borderRadius: "9999px",
+            }}
           >
             Cancel
           </Link>
           <button
             onClick={handleSave}
             disabled={loading}
-            className={`py-2 px-4 text-sm font-medium text-white rounded-lg shadow-md transition focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-              loading
-                ? "bg-blue-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className="py-3 px-6 text-sm font-medium text-white transition-all duration-200 disabled:opacity-50"
+            style={{ backgroundColor: "#1a73e8", borderRadius: "9999px" }}
           >
             {loading ? "Saving..." : "Save Customer"}
           </button>
@@ -220,799 +293,570 @@ const NewCustomerPage = () => {
 
       {/* Success Message */}
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4 flex items-center">
-          <CheckCircleIcon className="w-5 h-5 mr-2" />
+        <div
+          className="mb-4 p-4 flex items-center gap-3"
+          style={{
+            backgroundColor: "#e6f4ea",
+            borderRadius: "12px",
+            color: "#1e8e3e",
+          }}
+        >
+          <CheckCircleIcon className="w-5 h-5" />
           Customer created successfully! Redirecting...
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 flex items-center">
-          <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
+        <div
+          className="mb-4 p-4 flex items-center gap-3"
+          style={{
+            backgroundColor: "#fce8e6",
+            borderRadius: "12px",
+            color: "#d93025",
+          }}
+        >
+          <ExclamationTriangleIcon className="w-5 h-5" />
           {error}
         </div>
       )}
 
-      {/* Main Form Container */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-6 sm:p-8 space-y-6">
-          {/* Customer Type */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-            <label className="sm:col-span-3 text-sm font-medium text-gray-700">
-              Customer Type
-            </label>
-            <div className="sm:col-span-9 flex items-center space-x-6">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="customerType"
-                  value="business"
-                  checked={formData.customerType === "business"}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                />
-                <span className="ml-2 text-sm text-gray-900">Business</span>
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="customerType"
-                  value="individual"
-                  checked={formData.customerType === "individual"}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                />
-                <span className="ml-2 text-sm text-gray-900">Individual</span>
-              </label>
-            </div>
-          </div>
+      {/* Form Card */}
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "24px",
+          boxShadow:
+            "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15)",
+          overflow: "hidden",
+        }}
+      >
+        {/* Tabs */}
+        <div
+          className="flex gap-2 p-4"
+          style={{ borderBottom: "1px solid #e8eaed" }}
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className="px-5 py-2.5 text-sm font-medium transition-all duration-200"
+              style={{
+                backgroundColor:
+                  activeTab === tab.key ? "#e8f0fe" : "transparent",
+                color: activeTab === tab.key ? "#1a73e8" : "#5f6368",
+                borderRadius: "9999px",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-          {/* Primary Contact */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
-            <label className="sm:col-span-3 text-sm font-medium text-gray-700 pt-2">
-              Primary Contact <span className="text-red-500">*</span>
-            </label>
-            <div className="sm:col-span-9 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <select
-                name="salutation"
-                value={formData.salutation}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              >
-                <option>Mr.</option>
-                <option>Mrs.</option>
-                <option>Ms.</option>
-                <option>Dr.</option>
-              </select>
-              <input
-                type="text"
-                name="firstName"
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              />
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              />
-            </div>
-          </div>
+        {/* Tab Content */}
+        <div className="p-6 sm:p-8">
+          {/* Details Tab */}
+          {activeTab === "details" && (
+            <div className="space-y-6 max-w-3xl">
+              {/* Customer Type */}
+              <div className="flex items-center gap-6">
+                <label
+                  className="text-sm font-medium"
+                  style={{ color: "#202124" }}
+                >
+                  Customer Type
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="customerType"
+                    value="business"
+                    checked={formData.customerType === "business"}
+                    onChange={handleInputChange}
+                    style={{ accentColor: "#1a73e8" }}
+                  />
+                  <span className="text-sm" style={{ color: "#202124" }}>
+                    Business
+                  </span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="customerType"
+                    value="individual"
+                    checked={formData.customerType === "individual"}
+                    onChange={handleInputChange}
+                    style={{ accentColor: "#1a73e8" }}
+                  />
+                  <span className="text-sm" style={{ color: "#202124" }}>
+                    Individual
+                  </span>
+                </label>
+              </div>
 
-          {/* Company Name */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-            <label className="sm:col-span-3 text-sm font-medium text-gray-700">
-              Company Name
-            </label>
-            <div className="sm:col-span-9">
-              <input
-                type="text"
+              {/* Primary Contact */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormSelect
+                  label="Salutation"
+                  name="salutation"
+                  value={formData.salutation}
+                  onChange={handleInputChange}
+                >
+                  <option>Mr.</option>
+                  <option>Mrs.</option>
+                  <option>Ms.</option>
+                  <option>Dr.</option>
+                </FormSelect>
+                <FormInput
+                  label="First Name"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  placeholder="First Name"
+                />
+                <FormInput
+                  label="Last Name"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  placeholder="Last Name"
+                />
+              </div>
+
+              <FormInput
+                label="Company Name"
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
               />
-            </div>
-          </div>
-
-          {/* Display Name */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-            <label className="sm:col-span-3 text-sm font-medium text-red-500">
-              Display Name *
-            </label>
-            <div className="sm:col-span-9">
-              <input
-                type="text"
+              <FormInput
+                label="Display Name"
+                required
                 name="displayName"
-                placeholder="Select or type to add"
                 value={formData.displayName}
                 onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
+                placeholder="This name will be displayed"
               />
-            </div>
-          </div>
-
-          {/* Email Address */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-            <label className="sm:col-span-3 text-sm font-medium text-gray-700">
-              Email Address
-            </label>
-            <div className="sm:col-span-9">
-              <input
+              <FormInput
+                label="Email Address"
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
               />
-            </div>
-          </div>
 
-          {/* Phone */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-            <label className="sm:col-span-3 text-sm font-medium text-gray-700">
-              Phone
-            </label>
-            <div className="sm:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <input
-                type="text"
-                name="workPhone"
-                placeholder="Work Phone"
-                value={formData.workPhone}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              />
-              <input
-                type="text"
-                name="mobilePhone"
-                placeholder="Mobile"
-                value={formData.mobilePhone}
-                onChange={handleInputChange}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label="Work Phone"
+                  name="workPhone"
+                  value={formData.workPhone}
+                  onChange={handleInputChange}
+                />
+                <FormInput
+                  label="Mobile Phone"
+                  name="mobilePhone"
+                  value={formData.mobilePhone}
+                  onChange={handleInputChange}
+                />
+              </div>
 
-          {/* Customer Language */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-            <label className="sm:col-span-3 text-sm font-medium text-gray-700">
-              Customer Language
-            </label>
-            <div className="sm:col-span-9">
-              <select
-                name="language"
-                value={formData.language}
-                onChange={handleInputChange}
-                className="block w-full sm:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-              >
-                <option>English</option>
-                <option>Spanish</option>
-                <option>French</option>
-                <option>German</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs Navigation */}
-        <div className="border-b border-gray-200 mt-4 px-6 sm:px-8">
-          <nav
-            className="-mb-px flex space-x-6 overflow-x-auto"
-            aria-label="Tabs"
-          >
-            {[
-              "Other Details",
-              "Address",
-              "Contact Persons",
-              "Custom Fields",
-              "Reporting Tags",
-              "Remarks",
-            ].map((tab) => {
-              const tabKey = tab.toLowerCase().replace(" ", "");
-              const isActive =
-                activeTab === (tabKey === "otherdetails" ? "other" : tabKey);
-              return (
-                <button
-                  key={tab}
-                  onClick={() =>
-                    setActiveTab(tabKey === "otherdetails" ? "other" : tabKey)
-                  }
-                  className={`
-                                        whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-150
-                                        ${
-                                          isActive
-                                            ? "border-blue-500 text-blue-600"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                        }
-                                    `}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormSelect
+                  label="Currency"
+                  name="currency"
+                  value={formData.currency}
+                  onChange={handleInputChange}
                 >
-                  {tab}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-6 sm:p-8 min-h-[400px]">
-          {activeTab === "other" && (
-            <div className="space-y-6 max-w-3xl">
-              {/* PAN */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                <label className="sm:col-span-4 text-sm font-medium text-gray-700">
-                  PAN
-                </label>
-                <div className="sm:col-span-8">
-                  <input
-                    type="text"
-                    name="pan"
-                    value={formData.pan}
-                    onChange={handleInputChange}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                  />
-                </div>
+                  <option value="INR">INR - Indian Rupee</option>
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                </FormSelect>
+                <FormInput
+                  label="Opening Balance"
+                  type="number"
+                  name="openingBalance"
+                  value={formData.openingBalance}
+                  onChange={handleInputChange}
+                />
               </div>
 
-              {/* Currency */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                <label className="sm:col-span-4 text-sm font-medium text-gray-700">
-                  Currency
-                </label>
-                <div className="sm:col-span-8">
-                  <select
-                    name="currency"
-                    value={formData.currency}
-                    onChange={handleInputChange}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                  >
-                    <option value="INR">INR - Indian Rupee</option>
-                    <option value="USD">USD - US Dollar</option>
-                    <option value="EUR">EUR - Euro</option>
-                  </select>
-                </div>
-              </div>
+              <FormSelect
+                label="Payment Terms"
+                name="paymentTerms"
+                value={formData.paymentTerms}
+                onChange={handleInputChange}
+              >
+                <option>Due on Receipt</option>
+                <option>Net 15</option>
+                <option>Net 30</option>
+                <option>Net 60</option>
+              </FormSelect>
 
-              {/* Accounts Receivable */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                <label className="sm:col-span-4 text-sm font-medium text-gray-700">
-                  Accounts Receivable
-                </label>
-                <div className="sm:col-span-8">
-                  <select className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 text-gray-500">
-                    <option>Select an account</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Opening Balance */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                <label className="sm:col-span-4 text-sm font-medium text-gray-700">
-                  Opening Balance
-                </label>
-                <div className="sm:col-span-8 flex">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                    {formData.currency}
-                  </span>
-                  <input
-                    type="number"
-                    name="openingBalance"
-                    value={formData.openingBalance}
-                    onChange={handleInputChange}
-                    className="block w-full rounded-none rounded-r-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                  />
-                </div>
-              </div>
-
-              {/* Payment Terms */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                <label className="sm:col-span-4 text-sm font-medium text-gray-700">
-                  Payment Terms
-                </label>
-                <div className="sm:col-span-8">
-                  <select
-                    name="paymentTerms"
-                    value={formData.paymentTerms}
-                    onChange={handleInputChange}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                  >
-                    <option>Due on Receipt</option>
-                    <option>Net 15</option>
-                    <option>Net 30</option>
-                    <option>Net 60</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Enable Portal */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                <label className="sm:col-span-4 text-sm font-medium text-gray-700">
-                  Enable Portal?
-                </label>
-                <div className="sm:col-span-8">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="enablePortal"
-                      checked={formData.enablePortal}
-                      onChange={handleInputChange}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-sm text-gray-900">
-                      Allow portal access for this customer
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Documents */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start pt-4">
-                <label className="sm:col-span-4 text-sm font-medium text-gray-700">
-                  Documents
-                </label>
-                <div className="sm:col-span-8">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center hover:bg-gray-50 transition cursor-pointer">
-                    <ArrowUpTrayIcon className="w-8 h-8 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600 font-medium">
-                      Upload File
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Maximum 10 files, 10MB each
-                    </p>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="enablePortal"
+                  checked={formData.enablePortal}
+                  onChange={handleInputChange}
+                  style={{ accentColor: "#1a73e8" }}
+                />
+                <span className="text-sm" style={{ color: "#5f6368" }}>
+                  Allow portal access for this customer
+                </span>
               </div>
             </div>
           )}
+
+          {/* Address Tab */}
           {activeTab === "address" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Billing Address */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900 border-b pb-2">
+              <div className="space-y-5">
+                <h3
+                  className="text-lg font-medium"
+                  style={{
+                    color: "#202124",
+                    borderBottom: "1px solid #e8eaed",
+                    paddingBottom: "8px",
+                  }}
+                >
                   Billing Address
                 </h3>
-
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Attention
-                    </label>
-                    <input
-                      type="text"
-                      name="billingAttention"
-                      value={formData.billingAttention}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Country/Region
-                    </label>
-                    <select
-                      name="billingCountry"
-                      value={formData.billingCountry}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    >
-                      <option value="">Select</option>
-                      <option value="India">India</option>
-                      <option value="USA">USA</option>
-                      <option value="UK">UK</option>
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
-                    <label className="text-sm font-medium text-gray-700 pt-2">
-                      Address
-                    </label>
-                    <div className="sm:col-span-2 space-y-2">
-                      <textarea
-                        name="billingAddress1"
-                        placeholder="Street 1"
-                        rows="2"
-                        value={formData.billingAddress1}
-                        onChange={handleInputChange}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      />
-                      <textarea
-                        name="billingAddress2"
-                        placeholder="Street 2"
-                        rows="2"
-                        value={formData.billingAddress2}
-                        onChange={handleInputChange}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      name="billingCity"
-                      value={formData.billingCity}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      name="billingState"
-                      placeholder="Select or type to add"
-                      value={formData.billingState}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Pin Code
-                    </label>
-                    <input
-                      type="text"
-                      name="billingPinCode"
-                      value={formData.billingPinCode}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Phone
-                    </label>
-                    <input
-                      type="text"
-                      name="billingPhone"
-                      value={formData.billingPhone}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Fax Number
-                    </label>
-                    <input
-                      type="text"
-                      name="billingFax"
-                      value={formData.billingFax}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
+                <FormInput
+                  label="Attention"
+                  name="billingAttention"
+                  value={formData.billingAttention}
+                  onChange={handleInputChange}
+                />
+                <FormSelect
+                  label="Country/Region"
+                  name="billingCountry"
+                  value={formData.billingCountry}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select</option>
+                  <option value="India">India</option>
+                  <option value="USA">USA</option>
+                  <option value="UK">UK</option>
+                </FormSelect>
+                <FormInput
+                  label="Address Line 1"
+                  name="billingAddress1"
+                  value={formData.billingAddress1}
+                  onChange={handleInputChange}
+                  placeholder="Street 1"
+                />
+                <FormInput
+                  label="Address Line 2"
+                  name="billingAddress2"
+                  value={formData.billingAddress2}
+                  onChange={handleInputChange}
+                  placeholder="Street 2"
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormInput
+                    label="City"
+                    name="billingCity"
+                    value={formData.billingCity}
+                    onChange={handleInputChange}
+                  />
+                  <FormInput
+                    label="State"
+                    name="billingState"
+                    value={formData.billingState}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormInput
+                    label="Pin Code"
+                    name="billingPinCode"
+                    value={formData.billingPinCode}
+                    onChange={handleInputChange}
+                  />
+                  <FormInput
+                    label="Phone"
+                    name="billingPhone"
+                    value={formData.billingPhone}
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
 
               {/* Shipping Address */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="text-lg font-medium text-gray-900">
+              <div className="space-y-5">
+                <div
+                  className="flex items-center justify-between"
+                  style={{
+                    borderBottom: "1px solid #e8eaed",
+                    paddingBottom: "8px",
+                  }}
+                >
+                  <h3
+                    className="text-lg font-medium"
+                    style={{ color: "#202124" }}
+                  >
                     Shipping Address
                   </h3>
                   <button
-                    type="button"
                     onClick={copyBillingAddress}
-                    className="text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium"
+                    className="text-sm font-medium"
+                    style={{ color: "#1a73e8" }}
                   >
-                    <span className="mr-1">⬇</span> Copy billing address
+                    Copy from Billing
                   </button>
                 </div>
-
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Attention
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingAttention"
-                      value={formData.shippingAttention}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Country/Region
-                    </label>
-                    <select
-                      name="shippingCountry"
-                      value={formData.shippingCountry}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    >
-                      <option value="">Select</option>
-                      <option value="India">India</option>
-                      <option value="USA">USA</option>
-                      <option value="UK">UK</option>
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
-                    <label className="text-sm font-medium text-gray-700 pt-2">
-                      Address
-                    </label>
-                    <div className="sm:col-span-2 space-y-2">
-                      <textarea
-                        name="shippingAddress1"
-                        placeholder="Street 1"
-                        rows="2"
-                        value={formData.shippingAddress1}
-                        onChange={handleInputChange}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      />
-                      <textarea
-                        name="shippingAddress2"
-                        placeholder="Street 2"
-                        rows="2"
-                        value={formData.shippingAddress2}
-                        onChange={handleInputChange}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingCity"
-                      value={formData.shippingCity}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingState"
-                      placeholder="Select or type to add"
-                      value={formData.shippingState}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Pin Code
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingPinCode"
-                      value={formData.shippingPinCode}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Phone
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingPhone"
-                      value={formData.shippingPhone}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    <label className="text-sm font-medium text-gray-700">
-                      Fax Number
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingFax"
-                      value={formData.shippingFax}
-                      onChange={handleInputChange}
-                      className="sm:col-span-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
-                    />
-                  </div>
+                <FormInput
+                  label="Attention"
+                  name="shippingAttention"
+                  value={formData.shippingAttention}
+                  onChange={handleInputChange}
+                />
+                <FormSelect
+                  label="Country/Region"
+                  name="shippingCountry"
+                  value={formData.shippingCountry}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select</option>
+                  <option value="India">India</option>
+                  <option value="USA">USA</option>
+                  <option value="UK">UK</option>
+                </FormSelect>
+                <FormInput
+                  label="Address Line 1"
+                  name="shippingAddress1"
+                  value={formData.shippingAddress1}
+                  onChange={handleInputChange}
+                  placeholder="Street 1"
+                />
+                <FormInput
+                  label="Address Line 2"
+                  name="shippingAddress2"
+                  value={formData.shippingAddress2}
+                  onChange={handleInputChange}
+                  placeholder="Street 2"
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormInput
+                    label="City"
+                    name="shippingCity"
+                    value={formData.shippingCity}
+                    onChange={handleInputChange}
+                  />
+                  <FormInput
+                    label="State"
+                    name="shippingState"
+                    value={formData.shippingState}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormInput
+                    label="Pin Code"
+                    name="shippingPinCode"
+                    value={formData.shippingPinCode}
+                    onChange={handleInputChange}
+                  />
+                  <FormInput
+                    label="Phone"
+                    name="shippingPhone"
+                    value={formData.shippingPhone}
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
             </div>
           )}
-          {activeTab === "contactpersons" && (
-            <div className="space-y-4">
-              <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
+
+          {/* Contact Persons Tab */}
+          {activeTab === "contacts" && (
+            <div className="space-y-6">
+              {formData.contactPersons.map((contact, index) => (
+                <div
+                  key={index}
+                  className="p-5"
+                  style={{ backgroundColor: "#f8f9fa", borderRadius: "16px" }}
+                >
+                  <div className="flex justify-between items-center mb-4">
+                    <span
+                      className="text-sm font-medium"
+                      style={{ color: "#202124" }}
+                    >
+                      Contact Person {index + 1}
+                    </span>
+                    {formData.contactPersons.length > 1 && (
+                      <button
+                        onClick={() => removeContactPerson(index)}
+                        className="p-1.5 rounded-full transition-all duration-200 hover:bg-red-50"
+                        style={{ color: "#d93025" }}
                       >
-                        Salutation
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        First Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Last Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Email Address
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Work Phone
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Mobile
-                      </th>
-                      <th scope="col" className="relative px-4 py-3 w-16">
-                        <span className="sr-only">Actions</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {formData.contactPersons.map((person, index) => (
-                      <tr key={index}>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <select
-                            value={person.salutation}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                "salutation",
-                                e.target.value
-                              )
-                            }
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1"
-                          >
-                            <option>Mr.</option>
-                            <option>Mrs.</option>
-                            <option>Ms.</option>
-                            <option>Dr.</option>
-                          </select>
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <input
-                            type="text"
-                            value={person.firstName}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                "firstName",
-                                e.target.value
-                              )
-                            }
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1"
-                          />
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <input
-                            type="text"
-                            value={person.lastName}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                "lastName",
-                                e.target.value
-                              )
-                            }
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1"
-                          />
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <input
-                            type="email"
-                            value={person.email}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                "email",
-                                e.target.value
-                              )
-                            }
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1"
-                          />
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <input
-                            type="text"
-                            value={person.workPhone}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                "workPhone",
-                                e.target.value
-                              )
-                            }
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1"
-                          />
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <input
-                            type="text"
-                            value={person.mobile}
-                            onChange={(e) =>
-                              handleContactPersonChange(
-                                index,
-                                "mobile",
-                                e.target.value
-                              )
-                            }
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1"
-                          />
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button className="text-gray-400 hover:text-gray-600">
-                              <EllipsisVerticalIcon className="w-5 h-5" />
-                            </button>
-                            {formData.contactPersons.length > 1 && (
-                              <button
-                                onClick={() => removeContactPerson(index)}
-                                className="text-red-400 hover:text-red-600"
-                              >
-                                <TrashIcon className="w-5 h-5" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <select
+                      value={contact.salutation}
+                      onChange={(e) =>
+                        handleContactPersonChange(
+                          index,
+                          "salutation",
+                          e.target.value
+                        )
+                      }
+                      className="px-4 py-3 text-sm focus:outline-none"
+                      style={{
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #dadce0",
+                        borderRadius: "8px",
+                        color: "#202124",
+                      }}
+                    >
+                      <option>Mr.</option>
+                      <option>Mrs.</option>
+                      <option>Ms.</option>
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="First Name"
+                      value={contact.firstName}
+                      onChange={(e) =>
+                        handleContactPersonChange(
+                          index,
+                          "firstName",
+                          e.target.value
+                        )
+                      }
+                      className="px-4 py-3 text-sm focus:outline-none"
+                      style={{
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #dadce0",
+                        borderRadius: "8px",
+                        color: "#202124",
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last Name"
+                      value={contact.lastName}
+                      onChange={(e) =>
+                        handleContactPersonChange(
+                          index,
+                          "lastName",
+                          e.target.value
+                        )
+                      }
+                      className="px-4 py-3 text-sm focus:outline-none"
+                      style={{
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #dadce0",
+                        borderRadius: "8px",
+                        color: "#202124",
+                      }}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={contact.email}
+                      onChange={(e) =>
+                        handleContactPersonChange(
+                          index,
+                          "email",
+                          e.target.value
+                        )
+                      }
+                      className="px-4 py-3 text-sm focus:outline-none"
+                      style={{
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #dadce0",
+                        borderRadius: "8px",
+                        color: "#202124",
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Work Phone"
+                      value={contact.workPhone}
+                      onChange={(e) =>
+                        handleContactPersonChange(
+                          index,
+                          "workPhone",
+                          e.target.value
+                        )
+                      }
+                      className="px-4 py-3 text-sm focus:outline-none"
+                      style={{
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #dadce0",
+                        borderRadius: "8px",
+                        color: "#202124",
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Mobile"
+                      value={contact.mobile}
+                      onChange={(e) =>
+                        handleContactPersonChange(
+                          index,
+                          "mobile",
+                          e.target.value
+                        )
+                      }
+                      className="px-4 py-3 text-sm focus:outline-none"
+                      style={{
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #dadce0",
+                        borderRadius: "8px",
+                        color: "#202124",
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
               <button
-                type="button"
                 onClick={addContactPerson}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200"
+                style={{
+                  backgroundColor: "#e8f0fe",
+                  color: "#1a73e8",
+                  borderRadius: "9999px",
+                }}
               >
                 <PlusCircleIcon className="w-5 h-5 mr-2" />
                 Add Contact Person
               </button>
             </div>
           )}
-          {activeTab !== "other" &&
-            activeTab !== "address" &&
-            activeTab !== "contactpersons" && (
-              <div className="flex items-center justify-center h-40 text-gray-400">
-                <p>Content for {activeTab} tab coming soon...</p>
-              </div>
-            )}
+
+          {/* Remarks Tab */}
+          {activeTab === "remarks" && (
+            <div className="max-w-2xl">
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: "#202124" }}
+              >
+                Remarks
+              </label>
+              <textarea
+                name="remarks"
+                rows="5"
+                placeholder="Add any remarks or notes about this customer..."
+                value={formData.remarks}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 text-sm transition-all duration-200 resize-none focus:outline-none"
+                style={{
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #dadce0",
+                  borderRadius: "8px",
+                  color: "#202124",
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
