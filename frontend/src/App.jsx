@@ -67,11 +67,13 @@ function App() {
         {/* --- Item Routes --- */}
         <Route path="items" element={<ItemsPage />} />
         <Route path="items/new" element={<NewItemPage />} />
+        <Route path="items/:id/edit" element={<NewItemPage />} />
         {/* --------------------- */}
 
         {/* --- Sales Routes --- */}
         <Route path="sales/customers" element={<CustomersPage />} />
         <Route path="sales/customers/new" element={<NewCustomerPage />} />
+        <Route path="sales/customers/edit/:id" element={<NewCustomerPage />} />
         <Route path="sales/quotes" element={<QuotesPage />} />
         <Route path="sales/quotes/new" element={<NewQuotePage />} />
         <Route path="sales/salesorders" element={<SalesOrdersPage />} />

@@ -99,10 +99,10 @@ public class CustomerService {
      */
     @Transactional
     public CustomerResponse createCustomer(CustomerRequest request) {
-        // Validate display name uniqueness
-        if (customerRepository.existsByDisplayName(request.getDisplayName())) {
+        // Validate display name uniqueness (check only active customers)
+        if (customerRepository.existsByDisplayNameAndActiveTrue(request.getDisplayName())) {
             throw new IllegalArgumentException(
-                    "A customer with display name '" + request.getDisplayName() + "' already exists");
+                    "An active customer with display name '" + request.getDisplayName() + "' already exists");
         }
 
         Customer customer = mapRequestToEntity(request, new Customer());
@@ -125,11 +125,11 @@ public class CustomerService {
         Customer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + id));
 
-        // Validate display name uniqueness if changed
+        // Validate display name uniqueness if changed (check only active customers)
         if (request.getDisplayName() != null && !request.getDisplayName().isEmpty()) {
-            if (customerRepository.existsByDisplayNameAndIdNot(request.getDisplayName(), id)) {
+            if (customerRepository.existsByDisplayNameAndIdNotAndActiveTrue(request.getDisplayName(), id)) {
                 throw new IllegalArgumentException(
-                        "A customer with display name '" + request.getDisplayName() + "' already exists");
+                        "An active customer with display name '" + request.getDisplayName() + "' already exists");
             }
         }
 

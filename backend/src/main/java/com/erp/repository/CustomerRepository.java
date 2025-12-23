@@ -49,9 +49,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByEmail(String email);
 
     /**
-     * Check if customer with display name exists
+     * Check if active customer with display name exists
      */
-    boolean existsByDisplayName(String displayName);
+    boolean existsByDisplayNameAndActiveTrue(String displayName);
 
     /**
      * Check if customer with email exists
@@ -59,9 +59,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     boolean existsByEmail(String email);
 
     /**
-     * Check if customer with display name exists, excluding a specific customer ID
+     * Check if active customer with display name exists, excluding a specific
+     * customer ID
      */
-    boolean existsByDisplayNameAndIdNot(String displayName, Long id);
+    boolean existsByDisplayNameAndIdNotAndActiveTrue(String displayName, Long id);
 
     /**
      * Search customers by name or email (case-insensitive) with pagination
