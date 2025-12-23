@@ -30,7 +30,8 @@ public class UserService {
      * Get all users
      */
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
+        List<User> users = userRepository.findAll();
+        return users.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -40,8 +41,8 @@ public class UserService {
      */
     @Transactional
     public UserResponse createUser(UserRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists: " + request.getEmail());
+        if (request.getEmail() == null || userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists or is invalid: " + request.getEmail());
         }
 
         User user = User.builder()
@@ -61,6 +62,9 @@ public class UserService {
      */
     @Transactional
     public UserResponse updateUserRole(Long id, Role role) {
+        if (id == null) {
+            throw new RuntimeException("User ID cannot be null");
+        }
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -74,13 +78,15 @@ public class UserService {
      */
     @Transactional
     public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
+        if (id == null || !userRepository.existsById(id)) {
+            throw new RuntimeException("User not found or ID is null");
         }
         userRepository.deleteById(id);
     }
 
     private UserResponse mapToResponse(User user) {
+        if (user == null)
+            return null;
         return new UserResponse(
                 user.getId(),
                 user.getName(),
