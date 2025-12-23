@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "./utilities.css";
 
+.text-white {
+  color: #ffffff !important;
+}
+
 /* =============================================================================
    MATERIAL DESIGN 3 BASE STYLES
    Google Store / Pixel Product Page Aesthetic

@@ -260,6 +260,7 @@ const LoginPage = () => {
                 disabled={loading}
                 style={{
                   backgroundColor: loading ? "#8ab4f8" : "#1a73e8",
+                  color: "#ffffff",
                   borderRadius: "9999px",
                 }}
                 className={`w-full py-4 px-6 text-white font-medium text-sm transition-all duration-200 ${

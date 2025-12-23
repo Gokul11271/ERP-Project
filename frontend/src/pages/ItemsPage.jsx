@@ -120,6 +120,7 @@ const ItemsPage = () => {
           className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
           style={{
             backgroundColor: "#1a73e8",
+            color: "#ffffff",
             borderRadius: "9999px",
           }}
           onMouseOver={(e) =>
