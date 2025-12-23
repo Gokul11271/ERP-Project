@@ -93,83 +93,219 @@ const NewInvoicePage = () => {
   const taxAmount = (subTotal * (formData.taxRate || 0)) / 100;
   const total = subTotal - taxAmount + (parseFloat(formData.adjustment) || 0);
 
+  // Helper for Number to Words (Indian Format)
+  const numberToWords = (num) => {
+    const a = [
+      "",
+      "One ",
+      "Two ",
+      "Three ",
+      "Four ",
+      "Five ",
+      "Six ",
+      "Seven ",
+      "Eight ",
+      "Nine ",
+      "Ten ",
+      "Eleven ",
+      "Twelve ",
+      "Thirteen ",
+      "Fourteen ",
+      "Fifteen ",
+      "Sixteen ",
+      "Seventeen ",
+      "Eighteen ",
+      "Nineteen ",
+    ];
+    const b = [
+      "",
+      "",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
+    ];
+
+    const inWords = (n) => {
+      if ((n = n.toString()).length > 9) return "overflow";
+      let n_array = ("000000000" + n)
+        .substr(-9)
+        .match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+      if (!n_array) return "";
+      let str = "";
+      str +=
+        n_array[1] != 0
+          ? (a[Number(n_array[1])] ||
+              b[n_array[1][0]] + " " + a[n_array[1][1]]) + "Crore "
+          : "";
+      str +=
+        n_array[2] != 0
+          ? (a[Number(n_array[2])] ||
+              b[n_array[2][0]] + " " + a[n_array[2][1]]) + "Lakh "
+          : "";
+      str +=
+        n_array[3] != 0
+          ? (a[Number(n_array[3])] ||
+              b[n_array[3][0]] + " " + a[n_array[3][1]]) + "Thousand "
+          : "";
+      str +=
+        n_array[4] != 0
+          ? (a[Number(n_array[4])] ||
+              b[n_array[4][0]] + " " + a[n_array[4][1]]) + "Hundred "
+          : "";
+      str +=
+        n_array[5] != 0
+          ? (str != "" ? "and " : "") +
+            (a[Number(n_array[5])] ||
+              b[n_array[5][0]] + " " + a[n_array[5][1]]) +
+            "Only"
+          : "";
+      return str;
+    };
+
+    return `Indian Rupee ${inWords(Math.floor(num))}`;
+  };
+
   const generatePDF = () => {
     const doc = new jsPDF();
-
-    // Set Company Details (Placeholder from screenshot)
-    doc.setFontSize(18);
-    doc.setTextColor(40);
-    doc.text("Kayaa Electronics Pvt Ltd", 14, 22);
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text("Tamil Nadu, India", 14, 28);
-    doc.text("91-9003065660", 14, 33);
-    doc.text("vimal@gmail.com", 14, 38);
-
-    doc.setFontSize(22);
-    doc.setTextColor(0);
-    doc.text("TAX INVOICE", 140, 30);
-
-    // Invoice Info Box
-    doc.setFontSize(10);
     const tableFunc = autoTable.default || autoTable;
+
+    // --- Header ---
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Kayaa Electronics Pvt Ltd", 14, 20);
+
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100);
+    doc.text("Tamil Nadu", 14, 26);
+    doc.text("India", 14, 31);
+    doc.text("91-9003065660", 14, 36);
+    doc.text("arulmani.g@gmail.com", 14, 41);
+
+    doc.setFontSize(20);
+    doc.setTextColor(40);
+    doc.text("TAX INVOICE", 155, 35);
+
+    // Separator line
+    doc.setDrawColor(200);
+    doc.line(14, 48, 196, 48);
+
+    // --- Invoice Metadata ---
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+
+    // Metadata Table (Layout)
     tableFunc(doc, {
       startY: 50,
       body: [
-        ["Invoice#:", formData.invoiceNumber],
-        ["Invoice Date:", formData.invoiceDate],
-        ["Due Date:", formData.dueDate],
+        ["#", ": " + formData.invoiceNumber],
+        ["Invoice Date", ": " + formData.invoiceDate],
+        ["Terms", ": " + formData.terms],
+        ["Due Date", ": " + formData.dueDate],
+        ["P.O.#", ": " + (formData.orderNumber || "001")],
       ],
       theme: "plain",
-      styles: { cellPadding: 1, fontSize: 10 },
-      columnStyles: { 0: { fontStyle: "bold", width: 30 } },
-      margin: { left: 140 },
+      styles: { cellPadding: 1, fontSize: 9 },
+      columnStyles: { 0: { fontStyle: "normal", width: 25 } },
+      margin: { left: 14 },
     });
 
-    // Bill To Section
-    doc.text("Bill To", 14, 55);
-    doc.setFontSize(11);
+    // --- Bill To / Ship To ---
+    const midY = doc.lastAutoTable.finalY + 10;
     doc.setFont("helvetica", "bold");
-    doc.text(formData.customerName || "Customer Name", 14, 62);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.text("Bill To", 14, midY);
+    doc.text("Ship To", 100, midY);
 
-    // Items Table
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(30, 136, 229); // Blue for customer name
+    doc.text(formData.customerName || "Customer Name", 14, midY + 6);
+    doc.text("ferferf", 100, midY + 6); // Mock ship to
+
+    doc.setTextColor(100);
+    doc.setFontSize(9);
+    doc.text("ferferf", 14, midY + 11);
+    doc.text("fff", 14, midY + 16);
+    doc.text("Chennai, Tamil Nadu, India", 14, midY + 21);
+    doc.text("Tamil Nadu", 14, midY + 26);
+    doc.text("Afghanistan", 14, midY + 31);
+
+    doc.text("ferferf", 100, midY + 11);
+    doc.text("fff", 100, midY + 16);
+    doc.text("Chennai, Tamil Nadu, India", 100, midY + 21);
+    doc.text("Tamil Nadu", 100, midY + 26);
+    doc.text("Afghanistan", 100, midY + 31);
+
+    // --- Items Table ---
     const tableColumn = ["#", "Item & Description", "Qty", "Rate", "Amount"];
     const tableRows = formData.items.map((item, index) => [
       index + 1,
       item.details,
-      item.quantity,
+      Number(item.quantity).toFixed(2),
       Number(item.rate || 0).toFixed(2),
       Number(item.amount || 0).toFixed(2),
     ]);
 
     tableFunc(doc, {
-      startY: 80,
+      startY: midY + 40,
       head: [tableColumn],
       body: tableRows,
       theme: "grid",
-      headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
+      headStyles: {
+        fillColor: [245, 245, 245],
+        textColor: [40, 40, 40],
+        lineColor: [220, 220, 220],
+        lineWidth: 0.1,
+      },
+      styles: {
+        lineColor: [220, 220, 220],
+        lineWidth: 0.1,
+        fontSize: 9,
+      },
+      columnStyles: {
+        0: { width: 10 },
+        2: { halign: "right" },
+        3: { halign: "right" },
+        4: { halign: "right" },
+      },
     });
 
-    // Totals Section
+    // --- Financials Summary ---
     const finalY = doc.lastAutoTable.finalY + 10;
+
+    // Total in Words
+    doc.setTextColor(0);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("Total In Words", 14, finalY);
+    doc.setFont("helvetica", "italic");
+    doc.text(numberToWords(total), 14, finalY + 5);
+
+    // Totals Table
     tableFunc(doc, {
       startY: finalY,
       body: [
-        ["Sub Total", `INR ${Number(subTotal).toFixed(2)}`],
-        [
-          `${formData.taxType} (${formData.taxRate}%)`,
-          `(-) INR ${Number(taxAmount).toFixed(2)}`,
-        ],
-        ["Adjustment", `INR ${Number(formData.adjustment || 0).toFixed(2)}`],
-        ["Total", `INR ${Number(total).toFixed(2)}`],
+        ["Sub Total", Number(subTotal).toFixed(2)],
+        ["Total", "INR " + Number(total).toFixed(2)],
+        ["Payment Made", "(-) " + Number(total).toFixed(2)],
+        ["Balance Due", "INR 0.00"],
       ],
       theme: "plain",
-      styles: { halign: "right", fontSize: 10 },
-      columnStyles: { 0: { fontStyle: "bold", width: 40 } },
-      margin: { left: 130 },
+      styles: { halign: "right", fontSize: 9, cellPadding: 1 },
+      columnStyles: { 0: { fontStyle: "normal", width: 130 } },
+      margin: { left: 14 },
     });
+
+    // Notes
+    const notesY = doc.lastAutoTable.finalY + 15;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("Notes", 14, notesY);
+    doc.text("Thanks for your business.", 14, notesY + 6);
 
     doc.save(`${formData.invoiceNumber}.pdf`);
   };
