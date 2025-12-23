@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "./Side-bar";
 import {
-  BellIcon,
   PlusIcon,
   QuestionMarkCircleIcon,
   MagnifyingGlassIcon,
@@ -13,8 +12,15 @@ import {
   XMarkIcon,
   TrashIcon,
   UserIcon,
+  BookOpenIcon,
+  ShieldCheckIcon,
+  CurrencyDollarIcon,
+  UsersIcon,
+  HomeIcon,
+  CubeIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
-import { logout, getUserRole } from "../services/authService";
+import { logout, getUserRole, getUserName } from "../services/authService";
 import {
   fetchUsers,
   createUser,
@@ -295,6 +301,198 @@ const UserManagementModal = ({ onClose }) => {
 };
 
 /**
+ * Help Manual Modal - Material Design 3
+ */
+const HelpModal = ({ onClose }) => {
+  return (
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.32)" }}
+    >
+      <div
+        className="w-full max-w-3xl h-[80vh] overflow-hidden animate-fade-in flex flex-col"
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "28px",
+          boxShadow:
+            "0 8px 12px 6px rgba(60, 64, 67, 0.15), 0 4px 4px 0 rgba(60, 64, 67, 0.3)",
+        }}
+      >
+        {/* Header */}
+        <div className="flex justify-between items-center p-6 border-b border-gray-100">
+          <h3
+            className="text-xl font-medium flex items-center gap-3"
+            style={{ color: "#202124" }}
+          >
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: "#e8f0fe" }}
+            >
+              <BookOpenIcon className="w-5 h-5" style={{ color: "#1a73e8" }} />
+            </div>
+            Kayaa ERP Help Manual
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+            style={{ color: "#5f6368" }}
+          >
+            <XMarkIcon className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-8 space-y-10">
+          <section>
+            <h4
+              className="text-lg font-semibold mb-4 flex items-center gap-2"
+              style={{ color: "#1a73e8" }}
+            >
+              <HomeIcon className="w-5 h-5" /> Introduction
+            </h4>
+            <p className="text-gray-600 leading-relaxed">
+              Welcome to Kayaa ERP, a comprehensive business management solution
+              designed to streamline your operations, from sales and inventory
+              to financial reporting.
+            </p>
+          </section>
+
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="p-5 rounded-2xl bg-blue-50">
+              <h5 className="font-bold mb-2 flex items-center gap-2">
+                <UsersIcon className="w-4 h-4 text-blue-600" /> User Management
+              </h5>
+              <p className="text-sm text-gray-600">
+                Admins can manage user access, assign roles (Admin/User), and
+                maintain system security via the <strong>+ icon</strong> in the
+                top bar.
+              </p>
+            </div>
+            <div className="p-5 rounded-2xl bg-green-50">
+              <h5 className="font-bold mb-2 flex items-center gap-2">
+                <CurrencyDollarIcon className="w-4 h-4 text-green-600" /> Sales
+                Module
+              </h5>
+              <p className="text-sm text-gray-600">
+                Create Quotes, Sales Orders, and Invoices. Track customer
+                payments and manage recurring billing cycles effortlessly.
+              </p>
+            </div>
+            <div className="p-5 rounded-2xl bg-purple-50">
+              <h5 className="font-bold mb-2 flex items-center gap-2">
+                <CubeIcon className="w-4 h-4 text-purple-600" /> Inventory
+                Control
+              </h5>
+              <p className="text-sm text-gray-600">
+                Keep track of your items, units, and stock levels. Organize
+                products with detailed descriptions and categories.
+              </p>
+            </div>
+            <div className="p-5 rounded-2xl bg-orange-50">
+              <h5 className="font-bold mb-2 flex items-center gap-2">
+                <ShieldCheckIcon className="w-4 h-4 text-orange-600" /> Security
+              </h5>
+              <p className="text-sm text-gray-600">
+                Role-based access control (RBAC) ensures that only authorized
+                personnel can perform sensitive operations.
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h4
+              className="text-lg font-semibold mb-4"
+              style={{ color: "#202124" }}
+            >
+              Frequently Asked Questions
+            </h4>
+            <div className="space-y-4">
+              <div className="border border-gray-100 p-4 rounded-xl">
+                <p className="font-medium">How do I create a new invoice?</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Navigate to Sales &gt; Invoices and click the "New Invoice"
+                  button at the top right.
+                </p>
+              </div>
+              <div className="border border-gray-100 p-4 rounded-xl">
+                <p className="font-medium">Can I change my password?</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Currently, passwords can be managed by the System
+                  Administrator in the User Management portal.
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-100 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-8 py-3 bg-blue-600 text-white font-medium rounded-full hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100"
+          >
+            Got it, thanks!
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Moved searchablePages inside the file for easy access
+const SEARCHABLE_PAGES = [
+  { name: "Dashboard Home", path: "/home", category: "General" },
+  { name: "Manage Items", path: "/items", category: "Inventory" },
+  { name: "Create New Item", path: "/items/new", category: "Inventory" },
+  { name: "Customers List", path: "/sales/customers", category: "Sales" },
+  { name: "Sales Quotes", path: "/sales/quotes", category: "Sales" },
+  { name: "Sales Orders", path: "/sales/salesorders", category: "Sales" },
+  { name: "Invoices & Billing", path: "/sales/invoices", category: "Sales" },
+  {
+    name: "Recurring Invoices",
+    path: "/sales/recurringinvoices",
+    category: "Sales",
+  },
+  {
+    name: "Delivery Challans",
+    path: "/sales/deliverychallans",
+    category: "Sales",
+  },
+  {
+    name: "Payments Received",
+    path: "/sales/paymentsreceived",
+    category: "Sales",
+  },
+  { name: "Credit Notes", path: "/sales/creditnotes", category: "Sales" },
+  {
+    name: "Vendors & Suppliers",
+    path: "/purchases/vendors",
+    category: "Purchases",
+  },
+  { name: "Purchase Bills", path: "/purchases/bills", category: "Purchases" },
+  {
+    name: "Project Tracking",
+    path: "/time-tracking/projects",
+    category: "Time",
+  },
+  { name: "Timesheets", path: "/time-tracking/timesheet", category: "Time" },
+  { name: "Banking & Finance", path: "/banking", category: "Finance" },
+  {
+    name: "Manual Journals",
+    path: "/accountant/journals",
+    category: "Finance",
+  },
+  {
+    name: "Chart of Accounts",
+    path: "/accountant/accounts",
+    category: "Finance",
+  },
+  { name: "Reports Gallery", path: "/reports", category: "General" },
+  { name: "Document Drive", path: "/documents", category: "General" },
+  { name: "User Management", path: "ACTION_USERS", category: "Admin" },
+];
+
+/**
  * Profile Popup - Material Design 3
  */
 const ProfilePopup = ({ role, onLogout }) => (
@@ -320,7 +518,7 @@ const ProfilePopup = ({ role, onLogout }) => (
       </div>
       <div>
         <p className="text-sm font-medium" style={{ color: "#202124" }}>
-          Arulmani.G
+          {"Arulmani"}
         </p>
         <span
           className="text-xs font-medium px-2 py-0.5 mt-1 inline-block"
@@ -355,10 +553,51 @@ const ProfilePopup = ({ role, onLogout }) => (
 /**
  * Header Component - Material Design 3
  */
-const Header = ({ onMenuClick, onSettingsClick }) => {
+const Header = ({ onMenuClick, onSettingsClick, onHelpClick }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
   const userRole = getUserRole();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (query.trim().length > 0) {
+      const filtered = SEARCHABLE_PAGES.filter(
+        (page) =>
+          page.name.toLowerCase().includes(query.toLowerCase()) ||
+          page.category.toLowerCase().includes(query.toLowerCase())
+      );
+      setSearchResults(filtered);
+      setIsSearchOpen(true);
+    } else {
+      setSearchResults([]);
+      setIsSearchOpen(false);
+    }
+  };
+
+  const handleSearchResultClick = (page) => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    if (page.path === "ACTION_USERS") {
+      onSettingsClick();
+    } else {
+      navigate(page.path);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -396,15 +635,20 @@ const Header = ({ onMenuClick, onSettingsClick }) => {
       {/* Right Side: User Actions */}
       <div className="flex items-center gap-2 sm:gap-3 relative">
         {/* Search Input */}
-        <div className="relative hidden md:block">
+        <div className="relative hidden md:block" ref={searchRef}>
           <MagnifyingGlassIcon
             className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4"
             style={{ color: "#80868b" }}
           />
           <input
             type="text"
-            placeholder="Search..."
-            className="pl-10 pr-4 py-2 text-sm w-56 transition-all duration-200"
+            placeholder="Search pages..."
+            value={searchQuery}
+            onChange={handleSearch}
+            onFocus={() =>
+              searchQuery.trim().length > 0 && setIsSearchOpen(true)
+            }
+            className="pl-10 pr-4 py-2 text-sm w-64 transition-all duration-200 focus:w-80"
             style={{
               backgroundColor: "#f1f3f4",
               border: "none",
@@ -412,24 +656,37 @@ const Header = ({ onMenuClick, onSettingsClick }) => {
               color: "#202124",
             }}
           />
-        </div>
 
-        {/* Notification Bell */}
-        <button
-          className="p-2 rounded-full transition-all duration-200 hidden sm:block relative hover:bg-gray-100"
-          style={{ color: "#5f6368" }}
-        >
-          <BellIcon className="w-5 h-5" />
-          <span
-            className="absolute top-2 right-2 w-2 h-2 rounded-full"
-            style={{ backgroundColor: "#d93025" }}
-          />
-        </button>
+          {/* Search Recommendations Popup */}
+          {isSearchOpen && searchResults.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-fade-in max-h-96 overflow-y-auto w-80">
+              <div className="p-2">
+                {searchResults.map((result, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSearchResultClick(result)}
+                    className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-blue-50 transition-colors group"
+                  >
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {result.name}
+                      </p>
+                      <p className="text-xs text-gray-400">{result.category}</p>
+                    </div>
+                    <ChevronRightIcon className="w-4 h-4 text-gray-300 group-hover:text-blue-400" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Help */}
         <button
+          onClick={onHelpClick}
           className="p-2 rounded-full transition-all duration-200 hidden sm:block hover:bg-gray-100"
           style={{ color: "#5f6368" }}
+          title="Help Manual"
         >
           <QuestionMarkCircleIcon className="w-5 h-5" />
         </button>
@@ -472,6 +729,7 @@ const Header = ({ onMenuClick, onSettingsClick }) => {
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const userRole = getUserRole();
 
   const toggleSidebar = () => {
@@ -503,11 +761,17 @@ const DashboardLayout = () => {
         <UserManagementModal onClose={() => setIsSettingsModalOpen(false)} />
       )}
 
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <HelpModal onClose={() => setIsHelpModalOpen(false)} />
+      )}
+
       {/* Main Content Container */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header
           onMenuClick={toggleSidebar}
           onSettingsClick={handleSettingsClick}
+          onHelpClick={() => setIsHelpModalOpen(true)}
         />
 
         {/* Main Content Area */}
