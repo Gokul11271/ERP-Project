@@ -6,7 +6,31 @@ import {
   XMarkIcon,
   ArrowLeftIcon,
   DocumentTextIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/react/24/outline";
+import {
+  MD3Input,
+  MD3Select,
+  MD3Textarea,
+  MD3Button,
+  MD3Divider,
+  MD3TotalBox,
+} from "../../Components/ui/MD3FormComponents";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
+const INDIAN_TAX_OPTIONS = [
+  { label: "GST (5%)", value: 5 },
+  { label: "GST (12%)", value: 12 },
+  { label: "GST (18%)", value: 18 },
+  { label: "GST (28%)", value: 28 },
+  { label: "TDS (1%)", value: 1 },
+  { label: "TDS (2%)", value: 2 },
+  { label: "TDS (5%)", value: 5 },
+  { label: "TDS (10%)", value: 10 },
+  { label: "TCS (0.1%)", value: 0.1 },
+  { label: "TCS (1%)", value: 1 },
+];
 
 /**
  * NewInvoicePage - Material Design 3 (Google Store Aesthetic)
@@ -23,6 +47,9 @@ const NewInvoicePage = () => {
     salesperson: "",
     subject: "",
     items: [{ details: "", quantity: 1, rate: 0, discount: 0, amount: 0 }],
+    taxType: "TDS",
+    taxRate: 0,
+    adjustment: 0,
   });
 
   const handleInputChange = (e) => {
@@ -59,8 +86,91 @@ const NewInvoicePage = () => {
     }
   };
 
-  const calculateTotal = () => {
-    return formData.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const subTotal = formData.items.reduce(
+    (sum, item) => sum + (item.amount || 0),
+    0
+  );
+  const taxAmount = (subTotal * (formData.taxRate || 0)) / 100;
+  const total = subTotal - taxAmount + (parseFloat(formData.adjustment) || 0);
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // Set Company Details (Placeholder from screenshot)
+    doc.setFontSize(18);
+    doc.setTextColor(40);
+    doc.text("Kayaa Electronics Pvt Ltd", 14, 22);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("Tamil Nadu, India", 14, 28);
+    doc.text("91-9003065660", 14, 33);
+    doc.text("vimal@gmail.com", 14, 38);
+
+    doc.setFontSize(22);
+    doc.setTextColor(0);
+    doc.text("TAX INVOICE", 140, 30);
+
+    // Invoice Info Box
+    doc.setFontSize(10);
+    doc.autoTable({
+      startY: 50,
+      body: [
+        ["Invoice#:", formData.invoiceNumber],
+        ["Invoice Date:", formData.invoiceDate],
+        ["Due Date:", formData.dueDate],
+      ],
+      theme: "plain",
+      styles: { cellPadding: 1, fontSize: 10 },
+      columnStyles: { 0: { fontStyle: "bold", width: 30 } },
+      margin: { left: 140 },
+    });
+
+    // Bill To Section
+    doc.text("Bill To", 14, 55);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text(formData.customerName || "Customer Name", 14, 62);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+
+    // Items Table
+    const tableColumn = ["#", "Item & Description", "Qty", "Rate", "Amount"];
+    const tableRows = formData.items.map((item, index) => [
+      index + 1,
+      item.details,
+      item.quantity,
+      item.rate.toFixed(2),
+      item.amount.toFixed(2),
+    ]);
+
+    doc.autoTable({
+      startY: 80,
+      head: [tableColumn],
+      body: tableRows,
+      theme: "grid",
+      headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
+    });
+
+    // Totals Section
+    const finalY = doc.previousAutoTable.finalY + 10;
+    doc.autoTable({
+      startY: finalY,
+      body: [
+        ["Sub Total", `INR ${subTotal.toFixed(2)}`],
+        [
+          `${formData.taxType} (${formData.taxRate}%)`,
+          `(-) INR ${taxAmount.toFixed(2)}`,
+        ],
+        ["Adjustment", `INR ${formData.adjustment.toFixed(2)}`],
+        ["Total", `INR ${total.toFixed(2)}`],
+      ],
+      theme: "plain",
+      styles: { halign: "right", fontSize: 10 },
+      columnStyles: { 0: { fontStyle: "bold", width: 40 } },
+      margin: { left: 130 },
+    });
+
+    doc.save(`${formData.invoiceNumber}.pdf`);
   };
 
   return (
@@ -115,7 +225,7 @@ const NewInvoicePage = () => {
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-5">
-            <FormSelect
+            <MD3Select
               label="Customer Name"
               required
               name="customerName"
@@ -125,15 +235,15 @@ const NewInvoicePage = () => {
               <option value="">Select or add a customer</option>
               <option value="Customer A">Customer A</option>
               <option value="Customer B">Customer B</option>
-            </FormSelect>
-            <FormInput
+            </MD3Select>
+            <MD3Input
               label="Invoice#"
               required
               name="invoiceNumber"
               value={formData.invoiceNumber}
               onChange={handleInputChange}
             />
-            <FormInput
+            <MD3Input
               label="Order Number"
               name="orderNumber"
               value={formData.orderNumber}
@@ -142,7 +252,7 @@ const NewInvoicePage = () => {
           </div>
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
-              <FormInput
+              <MD3Input
                 label="Invoice Date"
                 required
                 type="date"
@@ -150,7 +260,7 @@ const NewInvoicePage = () => {
                 value={formData.invoiceDate}
                 onChange={handleInputChange}
               />
-              <FormInput
+              <MD3Input
                 label="Due Date"
                 type="date"
                 name="dueDate"
@@ -158,7 +268,7 @@ const NewInvoicePage = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <FormSelect
+            <MD3Select
               label="Payment Terms"
               name="terms"
               value={formData.terms}
@@ -167,44 +277,28 @@ const NewInvoicePage = () => {
               <option value="Due on Receipt">Due on Receipt</option>
               <option value="Net 15">Net 15</option>
               <option value="Net 30">Net 30</option>
-            </FormSelect>
-            <FormSelect
+            </MD3Select>
+            <MD3Select
               label="Salesperson"
               name="salesperson"
               value={formData.salesperson}
               onChange={handleInputChange}
             >
               <option value="">Select or Add Salesperson</option>
-            </FormSelect>
+            </MD3Select>
           </div>
         </div>
 
         {/* Subject */}
-        <div>
-          <label
-            className="block text-sm font-medium mb-2"
-            style={{ color: "#202124" }}
-          >
-            Subject
-          </label>
-          <textarea
-            name="subject"
-            rows="3"
-            placeholder="Let your customer know what this Invoice is for"
-            value={formData.subject}
-            onChange={handleInputChange}
-            className="w-full px-4 py-3 text-sm transition-all duration-200 resize-none focus:outline-none"
-            style={{
-              backgroundColor: "#ffffff",
-              border: "1px solid #dadce0",
-              borderRadius: "8px",
-              color: "#202124",
-            }}
-          />
-        </div>
+        <MD3Textarea
+          label="Subject"
+          name="subject"
+          placeholder="Let your customer know what this Invoice is for"
+          value={formData.subject}
+          onChange={handleInputChange}
+        />
 
-        {/* Divider */}
-        <div style={{ height: "1px", backgroundColor: "#e8eaed" }} />
+        <MD3Divider />
 
         {/* Item Table */}
         <div>
@@ -360,56 +454,37 @@ const NewInvoicePage = () => {
           </button>
 
           {/* Total Section */}
-          <div className="mt-8 flex justify-end">
-            <div
-              className="w-full md:w-1/3 p-5"
-              style={{ backgroundColor: "#f8f9fa", borderRadius: "16px" }}
-            >
-              <div
-                className="flex justify-between text-sm font-medium mb-3"
-                style={{ color: "#5f6368" }}
-              >
-                <span>Sub Total</span>
-                <span>₹{calculateTotal().toFixed(2)}</span>
-              </div>
-              <div
-                style={{
-                  height: "1px",
-                  backgroundColor: "#e8eaed",
-                  margin: "12px 0",
-                }}
-              />
-              <div
-                className="flex justify-between text-base font-medium"
-                style={{ color: "#202124" }}
-              >
-                <span>Total (INR)</span>
-                <span>₹{calculateTotal().toFixed(2)}</span>
-              </div>
-            </div>
+          <div className="mt-8">
+            <MD3TotalBox
+              subTotal={subTotal}
+              taxType={formData.taxType}
+              setTaxType={(val) =>
+                setFormData((prev) => ({ ...prev, taxType: val }))
+              }
+              taxRate={formData.taxRate}
+              setTaxRate={(val) =>
+                setFormData((prev) => ({ ...prev, taxRate: val }))
+              }
+              taxOptions={INDIAN_TAX_OPTIONS}
+              adjustment={formData.adjustment}
+              setAdjustment={(val) =>
+                setFormData((prev) => ({ ...prev, adjustment: val }))
+              }
+              total={total}
+            />
           </div>
         </div>
       </div>
 
       {/* Footer Buttons */}
       <div className="mt-8 flex justify-start gap-3 pb-8">
-        <button
-          className="py-3 px-6 text-sm font-medium transition-all duration-200"
-          style={{
-            backgroundColor: "#ffffff",
-            color: "#5f6368",
-            border: "1px solid #dadce0",
-            borderRadius: "9999px",
-          }}
-        >
-          Save as Draft
-        </button>
-        <button
-          className="py-3 px-6 text-sm font-medium text-white transition-all duration-200"
-          style={{ backgroundColor: "#1a73e8", borderRadius: "9999px" }}
-        >
-          Save and Send
-        </button>
+        <MD3Button variant="secondary">Save as Draft</MD3Button>
+        <MD3Button onClick={generatePDF}>
+          <div className="flex items-center gap-2">
+            <ArrowDownTrayIcon className="w-5 h-5" />
+            Save and Send
+          </div>
+        </MD3Button>
         <Link
           to="/sales/invoices"
           className="py-3 px-6 text-sm font-medium transition-all duration-200"
@@ -425,65 +500,5 @@ const NewInvoicePage = () => {
     </div>
   );
 };
-
-// Form Input Component
-const FormInput = ({
-  label,
-  required,
-  type = "text",
-  name,
-  value,
-  onChange,
-}) => (
-  <div>
-    <label
-      className="block text-sm font-medium mb-2"
-      style={{ color: required ? "#d93025" : "#202124" }}
-    >
-      {label}
-      {required && "*"}
-    </label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full px-4 py-3 text-sm transition-all duration-200 focus:outline-none"
-      style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #dadce0",
-        borderRadius: "8px",
-        color: "#202124",
-      }}
-    />
-  </div>
-);
-
-// Form Select Component
-const FormSelect = ({ label, required, name, value, onChange, children }) => (
-  <div>
-    <label
-      className="block text-sm font-medium mb-2"
-      style={{ color: required ? "#d93025" : "#202124" }}
-    >
-      {label}
-      {required && "*"}
-    </label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer focus:outline-none"
-      style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #dadce0",
-        borderRadius: "8px",
-        color: "#202124",
-      }}
-    >
-      {children}
-    </select>
-  </div>
-);
 
 export default NewInvoicePage;

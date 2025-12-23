@@ -291,16 +291,27 @@ export const MD3PageHeader = ({
 );
 
 // MD3 Total Box
-export const MD3TotalBox = ({ subTotal, total, currency = "₹" }) => (
+export const MD3TotalBox = ({
+  subTotal,
+  taxType,
+  setTaxType,
+  taxRate,
+  setTaxRate,
+  taxOptions,
+  adjustment,
+  setAdjustment,
+  total,
+  currency = "₹",
+}) => (
   <div
-    className="w-full md:w-1/3 p-5"
+    className="w-full md:w-1/2 ml-auto p-6 space-y-4"
     style={{
       backgroundColor: "#f8f9fa",
-      borderRadius: "16px",
+      borderRadius: "20px",
     }}
   >
     <div
-      className="flex justify-between text-sm font-medium mb-3"
+      className="flex justify-between text-sm font-medium"
       style={{ color: "#5f6368" }}
     >
       <span>Sub Total</span>
@@ -309,12 +320,81 @@ export const MD3TotalBox = ({ subTotal, total, currency = "₹" }) => (
         {subTotal.toFixed(2)}
       </span>
     </div>
-    <MD3Divider className="my-3" />
+
+    {/* Tax Section */}
+    <div className="space-y-3">
+      <div className="flex items-center gap-4 text-sm">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="radio"
+            name="taxType"
+            value="TDS"
+            checked={taxType === "TDS"}
+            onChange={(e) => setTaxType(e.target.value)}
+            className="w-4 h-4"
+            style={{ accentColor: "#1a73e8" }}
+          />
+          <span style={{ color: "#202124" }}>TDS</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="radio"
+            name="taxType"
+            value="TCS"
+            checked={taxType === "TCS"}
+            onChange={(e) => setTaxType(e.target.value)}
+            className="w-4 h-4"
+            style={{ accentColor: "#1a73e8" }}
+          />
+          <span style={{ color: "#202124" }}>TCS</span>
+        </label>
+
+        <select
+          value={taxRate}
+          onChange={(e) => setTaxRate(parseFloat(e.target.value))}
+          className="flex-1 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none"
+          style={{ borderColor: "#dadce0" }}
+        >
+          <option value="0">Select a Tax</option>
+          {taxOptions?.map((opt) => (
+            <option key={opt.label} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <span className="w-20 text-right" style={{ color: "#d93025" }}>
+          - {currency}
+          {((subTotal * taxRate) / 100).toFixed(2)}
+        </span>
+      </div>
+    </div>
+
+    {/* Adjustment Section */}
+    <div className="flex items-center gap-4 text-sm">
+      <span className="flex-1" style={{ color: "#202124" }}>
+        Adjustment
+      </span>
+      <input
+        type="number"
+        value={adjustment}
+        onChange={(e) => setAdjustment(parseFloat(e.target.value) || 0)}
+        className="w-32 px-3 py-2 text-right bg-white border border-gray-300 rounded-lg focus:outline-none"
+        style={{ borderColor: "#dadce0" }}
+        placeholder="0.00"
+      />
+      <span className="w-20 text-right" style={{ color: "#202124" }}>
+        {currency}
+        {adjustment.toFixed(2)}
+      </span>
+    </div>
+
+    <MD3Divider className="my-2" />
+
     <div
-      className="flex justify-between text-base font-medium"
+      className="flex justify-between text-lg font-semibold"
       style={{ color: "#202124" }}
     >
-      <span>Total ({currency === "₹" ? "INR" : "USD"})</span>
+      <span>Total ({currency})</span>
       <span>
         {currency}
         {total.toFixed(2)}
