@@ -518,7 +518,7 @@ const ProfilePopup = ({ role, onLogout }) => (
       </div>
       <div>
         <p className="text-sm font-medium" style={{ color: "#202124" }}>
-          {"Arulmani"}
+          {getUserName()}
         </p>
         <span
           className="text-xs font-medium px-2 py-0.5 mt-1 inline-block"
@@ -624,7 +624,7 @@ const Header = ({ onMenuClick, onSettingsClick, onHelpClick }) => {
 
         <div className="flex flex-col">
           <div className="font-medium text-base" style={{ color: "#202124" }}>
-            Hello, Arulmani.G
+            Hello, {getUserName()}
           </div>
           <div className="text-xs" style={{ color: "#5f6368" }}>
             Kayaa Electronics Pvt Ltd
@@ -710,7 +710,7 @@ const Header = ({ onMenuClick, onSettingsClick, onHelpClick }) => {
             className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium cursor-pointer transition-all duration-200 hover:opacity-90"
             style={{ backgroundColor: "#1a73e8" }}
           >
-            AG
+            {getUserName().charAt(0).toUpperCase()}
           </button>
 
           {isPopupOpen && (
