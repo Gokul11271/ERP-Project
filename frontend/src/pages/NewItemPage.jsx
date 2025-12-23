@@ -139,128 +139,6 @@ const NewItemPage = () => {
     }
   };
 
-  // Form Input Component
-  const FormInput = ({
-    label,
-    required,
-    type = "text",
-    value,
-    onChange,
-    error,
-    placeholder,
-    prefix,
-  }) => (
-    <div>
-      <label
-        className="block text-sm font-medium mb-2"
-        style={{ color: required ? "#d93025" : "#202124" }}
-      >
-        {label}
-        {required && "*"}
-      </label>
-      <div className="relative">
-        {prefix && (
-          <span
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-sm"
-            style={{ color: "#5f6368" }}
-          >
-            {prefix}
-          </span>
-        )}
-        <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          className={`w-full px-4 py-3 text-sm transition-all duration-200 focus:outline-none ${
-            prefix ? "pl-8" : ""
-          }`}
-          style={{
-            backgroundColor: "#ffffff",
-            border: `1px solid ${error ? "#d93025" : "#dadce0"}`,
-            borderRadius: "8px",
-            color: "#202124",
-          }}
-        />
-      </div>
-      {error && (
-        <p className="text-xs mt-1.5" style={{ color: "#d93025" }}>
-          {error}
-        </p>
-      )}
-    </div>
-  );
-
-  // Form Select Component
-  const FormSelect = ({ label, value, onChange, options, groupOptions }) => (
-    <div>
-      <label
-        className="block text-sm font-medium mb-2"
-        style={{ color: "#202124" }}
-      >
-        {label}
-      </label>
-      <select
-        value={value}
-        onChange={onChange}
-        className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer focus:outline-none"
-        style={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #dadce0",
-          borderRadius: "8px",
-          color: "#202124",
-        }}
-      >
-        {groupOptions
-          ? groupOptions.map((group, idx) => (
-              <optgroup key={idx} label={group.group}>
-                {group.options.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </optgroup>
-            ))
-          : options?.map((option) => (
-              <option key={option.code} value={option.code}>
-                {option.name}
-              </option>
-            ))}
-      </select>
-    </div>
-  );
-
-  // Toggle Component
-  const Toggle = ({ label, description, checked, onChange }) => (
-    <div
-      className="flex items-center justify-between p-4 cursor-pointer transition-all duration-200 hover:bg-gray-50"
-      style={{ backgroundColor: "#f8f9fa", borderRadius: "12px" }}
-      onClick={() => onChange({ target: { checked: !checked } })}
-    >
-      <div>
-        <p className="text-sm font-medium" style={{ color: "#202124" }}>
-          {label}
-        </p>
-        {description && (
-          <p className="text-xs mt-0.5" style={{ color: "#5f6368" }}>
-            {description}
-          </p>
-        )}
-      </div>
-      <div
-        className="w-12 h-7 rounded-full transition-colors duration-200 relative"
-        style={{ backgroundColor: checked ? "#1a73e8" : "#dadce0" }}
-      >
-        <div
-          className="absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200"
-          style={{
-            transform: checked ? "translateX(22px)" : "translateX(2px)",
-          }}
-        />
-      </div>
-    </div>
-  );
-
   return (
     <div
       className="p-6 sm:p-8"
@@ -609,5 +487,127 @@ const NewItemPage = () => {
     </div>
   );
 };
+
+// Form Input Component
+const FormInput = ({
+  label,
+  required,
+  type = "text",
+  value,
+  onChange,
+  error,
+  placeholder,
+  prefix,
+}) => (
+  <div>
+    <label
+      className="block text-sm font-medium mb-2"
+      style={{ color: required ? "#d93025" : "#202124" }}
+    >
+      {label}
+      {required && "*"}
+    </label>
+    <div className="relative">
+      {prefix && (
+        <span
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 text-sm"
+          style={{ color: "#5f6368" }}
+        >
+          {prefix}
+        </span>
+      )}
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full px-4 py-3 text-sm transition-all duration-200 focus:outline-none ${
+          prefix ? "pl-8" : ""
+        }`}
+        style={{
+          backgroundColor: "#ffffff",
+          border: `1px solid ${error ? "#d93025" : "#dadce0"}`,
+          borderRadius: "8px",
+          color: "#202124",
+        }}
+      />
+    </div>
+    {error && (
+      <p className="text-xs mt-1.5" style={{ color: "#d93025" }}>
+        {error}
+      </p>
+    )}
+  </div>
+);
+
+// Form Select Component
+const FormSelect = ({ label, value, onChange, options, groupOptions }) => (
+  <div>
+    <label
+      className="block text-sm font-medium mb-2"
+      style={{ color: "#202124" }}
+    >
+      {label}
+    </label>
+    <select
+      value={value}
+      onChange={onChange}
+      className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer focus:outline-none"
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid #dadce0",
+        borderRadius: "8px",
+        color: "#202124",
+      }}
+    >
+      {groupOptions
+        ? groupOptions.map((group, idx) => (
+            <optgroup key={idx} label={group.group}>
+              {group.options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </optgroup>
+          ))
+        : options?.map((option) => (
+            <option key={option.code} value={option.code}>
+              {option.name}
+            </option>
+          ))}
+    </select>
+  </div>
+);
+
+// Toggle Component
+const Toggle = ({ label, description, checked, onChange }) => (
+  <div
+    className="flex items-center justify-between p-4 cursor-pointer transition-all duration-200 hover:bg-gray-50"
+    style={{ backgroundColor: "#f8f9fa", borderRadius: "12px" }}
+    onClick={() => onChange({ target: { checked: !checked } })}
+  >
+    <div>
+      <p className="text-sm font-medium" style={{ color: "#202124" }}>
+        {label}
+      </p>
+      {description && (
+        <p className="text-xs mt-0.5" style={{ color: "#5f6368" }}>
+          {description}
+        </p>
+      )}
+    </div>
+    <div
+      className="w-12 h-7 rounded-full transition-colors duration-200 relative"
+      style={{ backgroundColor: checked ? "#1a73e8" : "#dadce0" }}
+    >
+      <div
+        className="absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200"
+        style={{
+          transform: checked ? "translateX(22px)" : "translateX(2px)",
+        }}
+      />
+    </div>
+  </div>
+);
 
 export default NewItemPage;

@@ -76,81 +76,6 @@ const NewQuotePage = () => {
     return formData.items.reduce((sum, item) => sum + (item.amount || 0), 0);
   };
 
-  // Input component with MD3 styling
-  const FormInput = ({
-    label,
-    required,
-    type = "text",
-    name,
-    value,
-    onChange,
-    placeholder,
-  }) => (
-    <div>
-      <label
-        className="block text-sm font-medium mb-2"
-        style={{ color: required ? "#d93025" : "#202124" }}
-      >
-        {label}
-        {required && "*"}
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full px-4 py-3 text-sm transition-all duration-200"
-        style={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #dadce0",
-          borderRadius: "8px",
-          color: "#202124",
-        }}
-      />
-    </div>
-  );
-
-  // Select component with MD3 styling
-  const FormSelect = ({
-    label,
-    required,
-    name,
-    value,
-    onChange,
-    children,
-    hint,
-  }) => (
-    <div>
-      <label
-        className="block text-sm font-medium mb-2"
-        style={{ color: required ? "#d93025" : "#202124" }}
-      >
-        {label}
-        {required && "*"}
-      </label>
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer"
-        style={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #dadce0",
-          borderRadius: "8px",
-          color: "#202124",
-        }}
-      >
-        {children}
-      </select>
-      {hint && (
-        <p className="text-xs mt-1.5" style={{ color: "#5f6368" }}>
-          {hint}
-        </p>
-      )}
-    </div>
-  );
-
   return (
     <div
       className="p-6 sm:p-8"
@@ -527,5 +452,80 @@ const NewQuotePage = () => {
     </div>
   );
 };
+
+// Input component with MD3 styling
+const FormInput = ({
+  label,
+  required,
+  type = "text",
+  name,
+  value,
+  onChange,
+  placeholder,
+}) => (
+  <div>
+    <label
+      className="block text-sm font-medium mb-2"
+      style={{ color: required ? "#d93025" : "#202124" }}
+    >
+      {label}
+      {required && "*"}
+    </label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="w-full px-4 py-3 text-sm transition-all duration-200"
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid #dadce0",
+        borderRadius: "8px",
+        color: "#202124",
+      }}
+    />
+  </div>
+);
+
+// Select component with MD3 styling
+const FormSelect = ({
+  label,
+  required,
+  name,
+  value,
+  onChange,
+  children,
+  hint,
+}) => (
+  <div>
+    <label
+      className="block text-sm font-medium mb-2"
+      style={{ color: required ? "#d93025" : "#202124" }}
+    >
+      {label}
+      {required && "*"}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer"
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid #dadce0",
+        borderRadius: "8px",
+        color: "#202124",
+      }}
+    >
+      {children}
+    </select>
+    {hint && (
+      <p className="text-xs mt-1.5" style={{ color: "#5f6368" }}>
+        {hint}
+      </p>
+    )}
+  </div>
+);
 
 export default NewQuotePage;

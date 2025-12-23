@@ -63,68 +63,6 @@ const NewDeliveryChallanPage = () => {
     return formData.items.reduce((sum, item) => sum + (item.amount || 0), 0);
   };
 
-  // Form Input Component
-  const FormInput = ({
-    label,
-    required,
-    type = "text",
-    name,
-    value,
-    onChange,
-    placeholder,
-  }) => (
-    <div>
-      <label
-        className="block text-sm font-medium mb-2"
-        style={{ color: required ? "#d93025" : "#202124" }}
-      >
-        {label}
-        {required && "*"}
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full px-4 py-3 text-sm transition-all duration-200 focus:outline-none"
-        style={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #dadce0",
-          borderRadius: "8px",
-          color: "#202124",
-        }}
-      />
-    </div>
-  );
-
-  // Form Select Component
-  const FormSelect = ({ label, required, name, value, onChange, children }) => (
-    <div>
-      <label
-        className="block text-sm font-medium mb-2"
-        style={{ color: required ? "#d93025" : "#202124" }}
-      >
-        {label}
-        {required && "*"}
-      </label>
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer focus:outline-none"
-        style={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #dadce0",
-          borderRadius: "8px",
-          color: "#202124",
-        }}
-      >
-        {children}
-      </select>
-    </div>
-  );
-
   return (
     <div
       className="p-6 sm:p-8"
@@ -511,5 +449,67 @@ const NewDeliveryChallanPage = () => {
     </div>
   );
 };
+
+// Form Input Component
+const FormInput = ({
+  label,
+  required,
+  type = "text",
+  name,
+  value,
+  onChange,
+  placeholder,
+}) => (
+  <div>
+    <label
+      className="block text-sm font-medium mb-2"
+      style={{ color: required ? "#d93025" : "#202124" }}
+    >
+      {label}
+      {required && "*"}
+    </label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="w-full px-4 py-3 text-sm transition-all duration-200 focus:outline-none"
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid #dadce0",
+        borderRadius: "8px",
+        color: "#202124",
+      }}
+    />
+  </div>
+);
+
+// Form Select Component
+const FormSelect = ({ label, required, name, value, onChange, children }) => (
+  <div>
+    <label
+      className="block text-sm font-medium mb-2"
+      style={{ color: required ? "#d93025" : "#202124" }}
+    >
+      {label}
+      {required && "*"}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full px-4 py-3 text-sm transition-all duration-200 cursor-pointer focus:outline-none"
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid #dadce0",
+        borderRadius: "8px",
+        color: "#202124",
+      }}
+    >
+      {children}
+    </select>
+  </div>
+);
 
 export default NewDeliveryChallanPage;
