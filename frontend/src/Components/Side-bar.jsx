@@ -13,6 +13,7 @@ import {
   PlusIcon,
   ChartPieIcon,
   XMarkIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 import { isAdmin } from "../services/authService";
 
@@ -26,6 +27,7 @@ const IconMap = {
   Accountant: CalculatorIcon,
   Reports: ChartPieIcon,
   Documents: DocumentTextIcon,
+  Payroll: BanknotesIcon,
 };
 
 const navItems = [
@@ -89,6 +91,15 @@ const navItems = [
     isSingle: true,
     hasRightElement: true,
   },
+  {
+    name: "Payroll",
+    icon: "Payroll",
+    subItems: [
+      { name: "Run Payroll", path: "/payroll/run" },
+      { name: "Employees", path: "/payroll/employees" },
+      { name: "Settings", path: "/payroll/settings/organisation" },
+    ],
+  },
 ];
 
 const SidebarItem = ({ item }) => {
@@ -138,10 +149,9 @@ const SidebarItem = ({ item }) => {
           className={`
             flex items-center p-3 text-sm font-medium transition-all duration-200
             ${isCollapsible ? "justify-between" : ""}
-            ${
-              !(isCurrentActiveLink || isSubItemActive)
-                ? "hover:bg-gray-100"
-                : ""
+            ${!(isCurrentActiveLink || isSubItemActive)
+              ? "hover:bg-gray-100"
+              : ""
             }
           `}
         >
@@ -160,9 +170,8 @@ const SidebarItem = ({ item }) => {
 
           {isCollapsible && (
             <ChevronRightIcon
-              className={`w-4 h-4 ml-2 transition-transform duration-200 ${
-                isOpen ? "rotate-90" : "rotate-0"
-              }`}
+              className={`w-4 h-4 ml-2 transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"
+                }`}
               style={{
                 color:
                   isCurrentActiveLink || isSubItemActive
@@ -204,10 +213,9 @@ const SidebarItem = ({ item }) => {
                   }}
                   className={`
                     flex justify-between items-center py-2.5 px-3 text-sm font-medium transition-all duration-200
-                    ${
-                      !location.pathname.startsWith(sub.path)
-                        ? "hover:bg-gray-100"
-                        : ""
+                    ${!location.pathname.startsWith(sub.path)
+                      ? "hover:bg-gray-100"
+                      : ""
                     }
                   `}
                 >

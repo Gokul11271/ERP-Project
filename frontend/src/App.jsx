@@ -18,6 +18,9 @@ import RecurringInvoicesPage from "./pages/sales/RecurringInvoicesPage.jsx";
 import NewRecurringInvoicePage from "./pages/sales/NewRecurringInvoicePage.jsx";
 import DeliveryChallansPage from "./pages/sales/DeliveryChallansPage.jsx";
 import NewDeliveryChallanPage from "./pages/sales/NewDeliveryChallanPage.jsx";
+import PayrollPage from "./pages/PayrollPage.jsx";
+import PayrollSettingsLayout from "./pages/payroll/PayrollSettingsLayout.jsx";
+import OrganisationProfile from "./pages/payroll/OrganisationProfile.jsx";
 import "./App.css";
 
 const ProtectedRoute = () => {
@@ -171,6 +174,24 @@ function App() {
           path="sales/creditnotes"
           element={<PlaceholderPage title="Credit Notes List" />}
         />
+        {/* --------------------- */}
+
+        {/* --- Payroll Routes --- */}
+        <Route path="payroll" element={<Navigate to="/payroll/run" replace />} />
+        <Route path="payroll/run" element={<PayrollPage title="Run Payroll" />} />
+        <Route
+          path="payroll/employees"
+          element={<PayrollPage title="Employees" />}
+        />
+        <Route path="payroll/settings" element={<PayrollSettingsLayout />}>
+          <Route index element={<Navigate to="organisation" replace />} />
+          <Route path="organisation" element={<OrganisationProfile />} />
+          {/* Placeholders for other settings */}
+          <Route
+            path="*"
+            element={<PlaceholderPage title="Settings Placeholder" />}
+          />
+        </Route>
         {/* --------------------- */}
 
         {/* Nested Routes (Placeholders) matching the sidebar structure */}
