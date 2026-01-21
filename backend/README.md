@@ -267,3 +267,23 @@ docker run -p 8080:8080 \
 | `JPA_DIALECT`       | Hibernate dialect                 | No       | H2Dialect    |
 | `JPA_DDL_AUTO`      | Schema management                 | No       | update       |
 | `DB_POOL_SIZE`      | Connection pool size              | No       | 10           |
+## 🏃 How to Run the Backend
+
+To run the application locally with the environment variables:
+
+1. **Navigate to the backend directory**:
+   ```bash
+   cd Backend
+   ```
+
+2. **Run using Maven with environment variables**:
+   ```bash
+   JWT_SECRET=your-secret-key \
+   CORS_ORIGINS=http://localhost:5173 \
+   mvn spring-boot:run
+   ```
+
+3. **Verify the service is up**:
+   ```bash
+   curl http://localhost:8080/api/auth/health
+   ```
