@@ -95,8 +95,10 @@ const navItems = [
     name: "Payroll",
     icon: "Payroll",
     subItems: [
-      { name: "Run Payroll", path: "/payroll/run" },
       { name: "Employees", path: "/payroll/employees" },
+      { name: "Pay Runs", path: "/payroll/run" },
+      { name: "Approvals", path: "/payroll/approvals" },
+      { name: "Reports", path: "/payroll/reports" },
       { name: "Settings", path: "/payroll/settings/organisation" },
     ],
   },

@@ -23,6 +23,7 @@ import PayrollLayout from "./pages/payroll/PayrollLayout.jsx";
 import PayrollDashboard from "./pages/payroll/PayrollDashboard.jsx";
 import Employees from "./pages/payroll/Employees.jsx";
 import NewEmployee from "./pages/payroll/NewEmployee.jsx";
+import EmployeeDetails from "./pages/payroll/EmployeeDetails.jsx";
 import RunPayroll from "./pages/payroll/RunPayroll.jsx";
 import PayRunDetails from "./pages/payroll/PayRunDetails.jsx";
 import PayrollSettingsLayout from "./pages/payroll/PayrollSettingsLayout.jsx";
@@ -188,9 +189,16 @@ function App() {
         {/* --- Payroll Routes --- */}
         <Route path="payroll" element={<Navigate to="/payroll/run" replace />} />
         <Route path="payroll/run" element={<PayrollPage title="Run Payroll" />} />
+        <Route path="payroll/employees" element={<Employees />} />
+        <Route path="payroll/employees/new" element={<NewEmployee />} />
+        <Route path="payroll/employees/:id" element={<EmployeeDetails />} />
         <Route
-          path="payroll/employees"
-          element={<PayrollPage title="Employees" />}
+          path="payroll/approvals"
+          element={<PayrollPage title="Approvals" />}
+        />
+        <Route
+          path="payroll/reports"
+          element={<PayrollPage title="Reports" />}
         />
         <Route path="payroll/settings" element={<PayrollSettingsLayout />}>
           <Route index element={<Navigate to="organisation" replace />} />

@@ -1,120 +1,256 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import axios from 'axios';
+import {
+    PlusIcon,
+    MagnifyingGlassIcon,
+    FunnelIcon,
+    ChevronDownIcon,
+    EllipsisHorizontalIcon,
+    XMarkIcon,
+    StarIcon
+} from '@heroicons/react/24/outline';
+import { CheckIcon } from '@heroicons/react/20/solid';
 
 const Employees = () => {
     const navigate = useNavigate();
+    const [employees, setEmployees] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [currentView, setCurrentView] = useState('All Employees'); // Default to All
+    const [isViewDropdownOpen, setIsViewDropdownOpen] = useState(false);
+    const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
 
-    // Mock Data
-    const employees = [
-        { id: 'EMP001', name: 'John Doe', role: 'Software Engineer', department: 'Engineering', status: 'Active', salary: '$80,000' },
-        { id: 'EMP002', name: 'Jane Smith', role: 'Product Manager', department: 'Product', status: 'Active', salary: '$95,000' },
-        { id: 'EMP003', name: 'Alice Johnson', role: 'HR Specialist', department: 'Human Resources', status: 'On Leave', salary: '$60,000' },
-        { id: 'EMP004', name: 'Bob Brown', role: 'Designer', department: 'Design', status: 'Active', salary: '$75,000' },
+    // Filter Filters State
+    const [filters, setFilters] = useState({
+        search: '',
+        id: '',
+        email: '',
+        status: 'All Status',
+        department: 'Select Department',
+    });
+
+    useEffect(() => {
+        fetchEmployees();
+    }, []);
+
+    const fetchEmployees = async () => {
+        setLoading(true);
+        try {
+            // Adjust API URL if needed. Assuming proxy or running on same host, but using localhost:8080 explicitly for now as configured in backend.
+            const response = await axios.get('http://localhost:8080/api/employees');
+            setEmployees(response.data);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const views = [
+        "All Employees",
+        "Active Employees",
+        "Exited Employees",
     ];
 
+    // Client-side filtering
+    const filteredEmployees = employees.filter(emp => {
+        // 1. View Filter
+        if (currentView === 'Active Employees' && emp.status !== 'ACTIVE') return false;
+        if (currentView === 'Exited Employees' && !['RESIGNED', 'TERMINATED', 'DECEASED'].includes(emp.status)) return false;
+
+        // 2. Sidebar Filters
+        const fullName = `${emp.firstName} ${emp.lastName}`.toLowerCase();
+        if (filters.search && !fullName.includes(filters.search.toLowerCase())) return false;
+        if (filters.id && !emp.employeeId.includes(filters.id)) return false;
+        if (filters.email && !emp.workEmail.toLowerCase().includes(filters.email.toLowerCase())) return false;
+        if (filters.status !== 'All Status' && emp.status !== filters.status.toUpperCase()) return false;
+        if (filters.department !== 'Select Department' && emp.department !== filters.department) return false;
+
+        return true;
+    });
+
+    const getAvatarColor = (name) => {
+        const colors = [
+            'bg-orange-100 text-orange-600',
+            'bg-blue-100 text-blue-600',
+            'bg-green-100 text-green-600',
+            'bg-purple-100 text-purple-600',
+            'bg-pink-100 text-pink-600',
+            'bg-teal-100 text-teal-600'
+        ];
+        const charCode = name.charCodeAt(0);
+        return colors[charCode % colors.length];
+    };
+
     return (
-        <div className="p-6 bg-gray-50 min-h-screen font-sans">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Employees</h1>
-                    <p className="text-sm text-gray-500">Manage your employee directory</p>
-                </div>
-                <button
-                    onClick={() => navigate('/payroll/employees/new')}
-                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-                >
-                    <PlusIcon className="w-5 h-5 mr-2" />
-                    Add Employee
-                </button>
-            </div>
+        <div className="flex h-full bg-white relative overflow-hidden">
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+                {/* Header */}
+                <div className="px-6 py-4 flex justify-between items-center border-b border-gray-100 flex-shrink-0">
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsViewDropdownOpen(!isViewDropdownOpen)}
+                            className="flex items-center gap-2 text-xl font-semibold text-gray-800 hover:text-gray-600 transition-colors"
+                        >
+                            {currentView}
+                            <ChevronDownIcon className={`w-5 h-5 transition-transform ${isViewDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
 
-            {/* Filters and Search - Simplified for now */}
-            <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                <div className="relative w-64">
-                    <input
-                        type="text"
-                        placeholder="Search employees..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    />
-                    <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                </div>
-                <div className="flex space-x-2">
-                    <button className="flex items-center px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 text-sm">
-                        <FunnelIcon className="w-4 h-4 mr-2" />
-                        Filter
-                    </button>
-                </div>
-            </div>
-
-            {/* Employees Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Employee Name
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Role
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Department
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Salary
-                            </th>
-                            <th scope="col" className="relative px-6 py-3">
-                                <span className="sr-only">Actions</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {employees.map((employee) => (
-                            <tr key={employee.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex items-center">
-                                        <div className="flex-shrink-0 h-10 w-10">
-                                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                                                {employee.name.charAt(0)}
+                        {/* View Dropdown */}
+                        {isViewDropdownOpen && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-10"
+                                    onClick={() => setIsViewDropdownOpen(false)}
+                                ></div>
+                                <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-100 z-20 py-2">
+                                    {views.map((view) => (
+                                        <button
+                                            key={view}
+                                            onClick={() => {
+                                                setCurrentView(view);
+                                                setIsViewDropdownOpen(false);
+                                            }}
+                                            className={`w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${currentView === view ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                {currentView === view && <CheckIcon className="w-4 h-4 text-blue-600" />}
+                                                <span className={currentView === view ? "" : "pl-7"}>{view}</span>
                                             </div>
-                                        </div>
-                                        <div className="ml-4">
-                                            <div className="text-sm font-medium text-gray-900">{employee.name}</div>
-                                            <div className="text-sm text-gray-500">{employee.id}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-900">{employee.role}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        {employee.department}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${employee.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                        {employee.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {employee.salary}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button className="text-blue-600 hover:text-blue-900 mr-4">Edit</button>
-                                    <button className="text-red-600 hover:text-red-900">Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/payroll/employees/new')}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+                        >
+                            <PlusIcon className="w-4 h-4" />
+                            Add
+                        </button>
+                        <button
+                            onClick={() => setIsFilterSidebarOpen(true)}
+                            className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-600"
+                        >
+                            <FunnelIcon className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Table Area */}
+                <div className="flex-1 overflow-auto bg-white">
+                    {loading ? (
+                        <div className="flex items-center justify-center h-64">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
+                    ) : (
+                        <table className="w-full min-w-[1000px]">
+                            <thead className="bg-[#fcfcfc] sticky top-0 z-0">
+                                <tr>
+                                    <th className="px-6 py-3 text-left border-b border-gray-100 w-10">
+                                        <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                        EMPLOYEE NAME
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                        WORK EMAIL
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                        DEPARTMENT
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                        EMPLOYEE STATUS
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {filteredEmployees.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-10 text-center text-gray-500">
+                                            No employees found.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredEmployees.map((emp) => (
+                                        <tr key={emp.employeeId} className="hover:bg-gray-50 group transition-colors">
+                                            <td className="px-6 py-4">
+                                                <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${getAvatarColor(emp.firstName || 'U')}`}>
+                                                        {emp.firstName ? emp.firstName.charAt(0) : 'U'}
+                                                    </div>
+                                                    <div>
+                                                        <div
+                                                            className="text-sm font-medium text-blue-600 cursor-pointer hover:underline"
+                                                            onClick={() => navigate(`/payroll/employees/${emp.id}`)}
+                                                        >
+                                                            {emp.firstName} {emp.lastName} - {emp.employeeId}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500">{emp.designation}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                                {emp.workEmail}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-600 uppercase">
+                                                {emp.department}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-0.5 rounded text-xs font-medium uppercase
+                                                    ${emp.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                                                    {emp.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </div>
+
+            {/* Filter Sidebar (Simplified for now) */}
+            {isFilterSidebarOpen && (
+                <div className="absolute inset-0 z-30 flex justify-end">
+                    <div
+                        className="absolute inset-0 bg-black/20"
+                        onClick={() => setIsFilterSidebarOpen(false)}
+                    ></div>
+                    <div className="relative w-80 sm:w-96 bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                            <h2 className="text-base font-semibold text-gray-800">Filter By</h2>
+                            <button
+                                onClick={() => setIsFilterSidebarOpen(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <XMarkIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1.5">Search Name</label>
+                                <input
+                                    type="text"
+                                    value={filters.search}
+                                    onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                            {/* More filters can be re-enabled here */}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

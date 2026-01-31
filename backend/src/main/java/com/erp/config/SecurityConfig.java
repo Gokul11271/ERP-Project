@@ -114,7 +114,9 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/h2-console/**",
                                 "/error",
-                                "/actuator/**")
+                                "/actuator/**",
+                                "/api/employees",
+                                "/api/employees/**")
                         .permitAll()
                         // Admin-only write operations
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/**").hasRole("ADMIN")
