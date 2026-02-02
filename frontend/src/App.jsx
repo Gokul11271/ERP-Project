@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate, Link, Outlet } from "react-router-dom";
 import DashboardLayout from "./Components/DashboardLayout.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import ItemsPage from "./pages/ItemsPage.jsx";
@@ -24,8 +24,6 @@ import PayrollDashboard from "./pages/payroll/PayrollDashboard.jsx";
 import Employees from "./pages/payroll/Employees.jsx";
 import NewEmployee from "./pages/payroll/NewEmployee.jsx";
 import EmployeeDetails from "./pages/payroll/EmployeeDetails.jsx";
-import RunPayroll from "./pages/payroll/RunPayroll.jsx";
-import PayRunDetails from "./pages/payroll/PayRunDetails.jsx";
 import PayrollSettingsLayout from "./pages/payroll/PayrollSettingsLayout.jsx";
 import OrganisationProfile from "./pages/payroll/OrganisationProfile.jsx";
 import Users from "./pages/payroll/Users.jsx";
@@ -37,7 +35,7 @@ const ProtectedRoute = () => {
   if (!isAuthenticated()) {
     return <Navigate to="/" replace />;
   }
-  return <DashboardLayout />;
+  return <Outlet />;
 };
 
 const AdminRoute = ({ children }) => {
@@ -82,170 +80,175 @@ function App() {
       {/* 1. Public Route: Login Page (Root Route) */}
       <Route path="/" element={<LoginPage />} />
 
-      {/* 2. Protected Routes: All dashboard content nested under the ProtectedRoute */}
+      {/* 2. Protected Routes Wrapper */}
       <Route element={<ProtectedRoute />}>
-        {/* The index route for authenticated users is /home */}
-        <Route path="/home" index element={<DashboardPage />} />
 
-        {/* --- Item Routes --- */}
-        <Route path="items" element={<ItemsPage />} />
-        <Route
-          path="items/new"
-          element={
-            <AdminRoute>
-              <NewItemPage />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="items/:id/edit"
-          element={
-            <AdminRoute>
-              <NewItemPage />
-            </AdminRoute>
-          }
-        />
-        {/* --------------------- */}
+        {/* A. Standard Dashboard Layout Routes */}
+        <Route element={<DashboardLayout />}>
+          {/* The index route for authenticated users is /home */}
+          <Route path="/home" index element={<DashboardPage />} />
 
-        {/* --- Sales Routes --- */}
-        <Route path="sales/customers" element={<CustomersPage />} />
-        <Route
-          path="sales/customers/new"
-          element={
-            <AdminRoute>
-              <NewCustomerPage />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="sales/customers/edit/:id"
-          element={
-            <AdminRoute>
-              <NewCustomerPage />
-            </AdminRoute>
-          }
-        />
-        <Route path="sales/quotes" element={<QuotesPage />} />
-        <Route
-          path="sales/quotes/new"
-          element={
-            <AdminRoute>
-              <NewQuotePage />
-            </AdminRoute>
-          }
-        />
-        <Route path="sales/salesorders" element={<SalesOrdersPage />} />
-        <Route
-          path="sales/salesorders/new"
-          element={
-            <AdminRoute>
-              <NewSalesOrderPage />
-            </AdminRoute>
-          }
-        />
-        <Route path="sales/invoices" element={<InvoicesPage />} />
-        <Route
-          path="sales/invoices/new"
-          element={
-            <AdminRoute>
-              <NewInvoicePage />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="sales/recurringinvoices"
-          element={<RecurringInvoicesPage />}
-        />
-        <Route
-          path="sales/recurringinvoices/new"
-          element={
-            <AdminRoute>
-              <NewRecurringInvoicePage />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="sales/deliverychallans"
-          element={<DeliveryChallansPage />}
-        />
-        <Route
-          path="sales/deliverychallans/new"
-          element={
-            <AdminRoute>
-              <NewDeliveryChallanPage />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="sales/paymentsreceived"
-          element={<PlaceholderPage title="Payments Received List" />}
-        />
-        <Route
-          path="sales/creditnotes"
-          element={<PlaceholderPage title="Credit Notes List" />}
-        />
-        {/* --------------------- */}
+          {/* --- Item Routes --- */}
+          <Route path="items" element={<ItemsPage />} />
+          <Route
+            path="items/new"
+            element={
+              <AdminRoute>
+                <NewItemPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="items/:id/edit"
+            element={
+              <AdminRoute>
+                <NewItemPage />
+              </AdminRoute>
+            }
+          />
 
-        {/* --- Payroll Routes --- */}
-        <Route path="payroll" element={<Navigate to="/payroll/run" replace />} />
-        <Route path="payroll/run" element={<PayrollPage title="Run Payroll" />} />
-        <Route path="payroll/employees" element={<Employees />} />
-        <Route path="payroll/employees/new" element={<NewEmployee />} />
-        <Route path="payroll/employees/:id" element={<EmployeeDetails />} />
-        <Route
-          path="payroll/approvals"
-          element={<PayrollPage title="Approvals" />}
-        />
-        <Route
-          path="payroll/reports"
-          element={<PayrollPage title="Reports" />}
-        />
+          {/* --- Sales Routes --- */}
+          <Route path="sales/customers" element={<CustomersPage />} />
+          <Route
+            path="sales/customers/new"
+            element={
+              <AdminRoute>
+                <NewCustomerPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="sales/customers/edit/:id"
+            element={
+              <AdminRoute>
+                <NewCustomerPage />
+              </AdminRoute>
+            }
+          />
+          <Route path="sales/quotes" element={<QuotesPage />} />
+          <Route
+            path="sales/quotes/new"
+            element={
+              <AdminRoute>
+                <NewQuotePage />
+              </AdminRoute>
+            }
+          />
+          <Route path="sales/salesorders" element={<SalesOrdersPage />} />
+          <Route
+            path="sales/salesorders/new"
+            element={
+              <AdminRoute>
+                <NewSalesOrderPage />
+              </AdminRoute>
+            }
+          />
+          <Route path="sales/invoices" element={<InvoicesPage />} />
+          <Route
+            path="sales/invoices/new"
+            element={
+              <AdminRoute>
+                <NewInvoicePage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="sales/recurringinvoices"
+            element={<RecurringInvoicesPage />}
+          />
+          <Route
+            path="sales/recurringinvoices/new"
+            element={
+              <AdminRoute>
+                <NewRecurringInvoicePage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="sales/deliverychallans"
+            element={<DeliveryChallansPage />}
+          />
+          <Route
+            path="sales/deliverychallans/new"
+            element={
+              <AdminRoute>
+                <NewDeliveryChallanPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="sales/paymentsreceived"
+            element={<PlaceholderPage title="Payments Received List" />}
+          />
+          <Route
+            path="sales/creditnotes"
+            element={<PlaceholderPage title="Credit Notes List" />}
+          />
+
+          {/* Nested Standard Routes (Placeholders) */}
+          <Route
+            path="purchases/vendors"
+            element={<PlaceholderPage title="Vendors" />}
+          />
+          <Route
+            path="purchases/bills"
+            element={<PlaceholderPage title="Bills" />}
+          />
+          <Route
+            path="time-tracking/projects"
+            element={<PlaceholderPage title="Time Tracking Projects" />}
+          />
+          <Route
+            path="time-tracking/timesheet"
+            element={<PlaceholderPage title="Timesheet" />}
+          />
+          <Route path="banking" element={<PlaceholderPage title="Banking" />} />
+          <Route
+            path="accountant/journals"
+            element={<PlaceholderPage title="Manual Journals" />}
+          />
+          <Route
+            path="accountant/accounts"
+            element={<PlaceholderPage title="Chart of Accounts" />}
+          />
+          <Route path="reports" element={<PlaceholderPage title="Reports" />} />
+          <Route
+            path="documents"
+            element={<PlaceholderPage title="Documents" />}
+          />
+        </Route> {/* End of DashboardLayout Routes */}
+
+        {/* B. Payroll Layout Routes (Separate Layout) */}
+        <Route path="payroll" element={<PayrollLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<PayrollDashboard />} />
+          <Route path="run" element={<PayrollPage title="Run Payroll" />} />
+          <Route path="employees" element={<Employees />} />
+          <Route path="employees/new" element={<NewEmployee />} />
+          <Route path="employees/:id" element={<EmployeeDetails />} />
+          <Route
+            path="approvals"
+            element={<PayrollPage title="Approvals" />}
+          />
+          <Route
+            path="reports"
+            element={<PayrollPage title="Reports" />}
+          />
+        </Route>
+
         <Route path="payroll/settings" element={<PayrollSettingsLayout />}>
           <Route index element={<Navigate to="organisation" replace />} />
           <Route path="organisation" element={<OrganisationProfile />} />
           <Route path="users" element={<Users />} />
           <Route path="roles" element={<Roles />} />
           <Route path="taxes/details" element={<TaxDetails />} />
-          {/* Placeholders for other settings */}
           <Route
             path="*"
             element={<PlaceholderPage title="Settings Placeholder" />}
           />
         </Route>
-        {/* --------------------- */}
 
-        {/* Nested Routes (Placeholders) matching the sidebar structure */}
-        <Route
-          path="purchases/vendors"
-          element={<PlaceholderPage title="Vendors" />}
-        />
-        <Route
-          path="purchases/bills"
-          element={<PlaceholderPage title="Bills" />}
-        />
-        <Route
-          path="time-tracking/projects"
-          element={<PlaceholderPage title="Time Tracking Projects" />}
-        />
-        <Route
-          path="time-tracking/timesheet"
-          element={<PlaceholderPage title="Timesheet" />}
-        />
-        <Route path="banking" element={<PlaceholderPage title="Banking" />} />
-        <Route
-          path="accountant/journals"
-          element={<PlaceholderPage title="Manual Journals" />}
-        />
-        <Route
-          path="accountant/accounts"
-          element={<PlaceholderPage title="Chart of Accounts" />}
-        />
-        <Route path="reports" element={<PlaceholderPage title="Reports" />} />
-        <Route
-          path="documents"
-          element={<PlaceholderPage title="Documents" />}
-        />
-      </Route>
+      </Route> {/* End of Protected Routes (Wrapper) */}
 
       {/* Catch-all route for 404 */}
       <Route path="*" element={<NotFound />} />

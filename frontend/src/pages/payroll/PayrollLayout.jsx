@@ -16,7 +16,7 @@ import {
 
 // Payroll Specific Navigation
 const navItems = [
-    { name: "Dashboard", path: "/payroll", icon: Squares2X2Icon },
+    { name: "Dashboard", path: "/payroll/dashboard", icon: Squares2X2Icon },
     { name: "Employees", path: "/payroll/employees", icon: UsersIcon },
     { name: "Pay Runs", path: "/payroll/run", icon: BanknotesIcon },
     { name: "Approvals", path: "/payroll/approvals", icon: CheckBadgeIcon, hasSubmenu: true },
@@ -93,8 +93,8 @@ const PayrollLayout = () => {
                                         key={item.name}
                                         to={item.path}
                                         className={`flex items-center justify-between px-4 py-2.5 mx-2 rounded-md text-sm font-medium transition-all duration-200 ${isActive
-                                                ? "bg-blue-600 text-white shadow-sm"
-                                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                            ? "bg-blue-600 text-white shadow-sm"
+                                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                             }`}
                                     >
                                         <div className="flex items-center gap-3">

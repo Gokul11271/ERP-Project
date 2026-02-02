@@ -8,7 +8,8 @@ import {
     XMarkIcon,
     ChevronDownIcon,
     MagnifyingGlassIcon,
-    PlusIcon
+    PlusIcon,
+    ExclamationTriangleIcon
 } from "@heroicons/react/24/outline";
 
 const EmployeeDetails = () => {
@@ -19,6 +20,34 @@ const EmployeeDetails = () => {
     const [activeTab, setActiveTab] = useState("overview");
     const [editingSection, setEditingSection] = useState(null);
     const [formData, setFormData] = useState({});
+
+    // UI Action States
+    const [showActionMenu, setShowActionMenu] = useState(false);
+    const [showVehicleModal, setShowVehicleModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showExitModal, setShowExitModal] = useState(false);
+
+    // Add Menu States
+    const [showAddMenu, setShowAddMenu] = useState(false);
+    const [showDeductionModal, setShowDeductionModal] = useState(false);
+    const [showBenefitModal, setShowBenefitModal] = useState(false);
+
+    const actionMenuRef = useRef(null);
+    const addMenuRef = useRef(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (actionMenuRef.current && !actionMenuRef.current.contains(event.target)) {
+                setShowActionMenu(false);
+            }
+            if (addMenuRef.current && !addMenuRef.current.contains(event.target)) {
+                setShowAddMenu(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     useEffect(() => {
         fetchEmployee();
@@ -83,8 +112,65 @@ const EmployeeDetails = () => {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <button className="px-3 py-1.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 bg-white shadow-sm flex items-center gap-1">Add <span className="text-gray-400">▼</span></button>
-                    <button className="p-2 border border-gray-300 rounded text-gray-500 hover:bg-gray-50 bg-white shadow-sm"><EllipsisHorizontalIcon className="w-5 h-5" /></button>
+                    {/* Add Menu */}
+                    <div className="relative" ref={addMenuRef}>
+                        <button
+                            onClick={() => setShowAddMenu(!showAddMenu)}
+                            className="px-3 py-1.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 bg-white shadow-sm flex items-center gap-1"
+                        >
+                            Add <ChevronDownIcon className="w-3 h-3 text-gray-400" />
+                        </button>
+
+                        {showAddMenu && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-1 animate-in fade-in zoom-in-95 duration-100">
+                                <button
+                                    onClick={() => { setShowDeductionModal(true); setShowAddMenu(false); }}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-white hover:bg-blue-500"
+                                >
+                                    Deduction
+                                </button>
+                                <button
+                                    onClick={() => { setShowBenefitModal(true); setShowAddMenu(false); }}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-white hover:bg-blue-500"
+                                >
+                                    Benefit
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Action Menu */}
+                    <div className="relative" ref={actionMenuRef}>
+                        <button
+                            onClick={() => setShowActionMenu(!showActionMenu)}
+                            className={`p-2 border rounded shadow-sm ${showActionMenu ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`}
+                        >
+                            <EllipsisHorizontalIcon className="w-5 h-5" />
+                        </button>
+
+                        {showActionMenu && (
+                            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                <button
+                                    onClick={() => { setShowVehicleModal(true); setShowActionMenu(false); }}
+                                    className="w-full text-left px-4 py-2.5 text-sm text-white bg-blue-500 hover:bg-blue-600 font-medium mb-1 mx-2 rounded w-[calc(100%-16px)]"
+                                >
+                                    Add / Update Vehicle Details
+                                </button>
+                                <button
+                                    onClick={() => { setShowDeleteModal(true); setShowActionMenu(false); }}
+                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                                >
+                                    Delete Employee
+                                </button>
+                                <button
+                                    onClick={() => { setShowExitModal(true); setShowActionMenu(false); }}
+                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                                >
+                                    Initiate Exit Process
+                                </button>
+                            </div>
+                        )}
+                    </div>
                     <button onClick={() => navigate('/payroll/employees')} className="p-2 rounded text-gray-400 hover:bg-gray-100"><XMarkIcon className="w-6 h-6" /></button>
                 </div>
             </div>
@@ -591,6 +677,310 @@ const EmployeeDetails = () => {
                                 </div>
                             </>
                         )}
+                    </div>
+                )}
+                {/* --- MODALS --- */}
+
+                {/* Deduction Modal */}
+                {showDeductionModal && (
+                    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+                        <div className="bg-white rounded-lg shadow-xl max-w-md w-full animate-in fade-in zoom-in-95 duration-200">
+                            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+                                <h3 className="text-lg font-medium text-gray-800">Add Deductions</h3>
+                                <button onClick={() => setShowDeductionModal(false)} className="text-gray-400 hover:text-gray-600">
+                                    <XMarkIcon className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <div className="p-6">
+                                <div className="mb-6">
+                                    <SearchableDropdown
+                                        label={<>Select a Deduction<span className="text-red-500">*</span></>}
+                                        options={["House rent"]}
+                                        placeholder="Select"
+                                        value=""
+                                        onChange={(val) => console.log(val)}
+                                    // Hack to show "+ New Deduction" at bottom - handled by Custom Dropdown component if we modifying it, 
+                                    // but we can also rely on the existing "Add New" feature in SearchableDropdown
+                                    />
+                                    <div className="mt-2 text-blue-500 text-sm font-medium cursor-pointer hover:underline flex items-center gap-1">
+                                        <PlusIcon className="w-4 h-4" /> New Deduction
+                                    </div>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button className="px-4 py-2 bg-blue-400 text-white rounded font-medium shadow-sm text-sm cursor-not-allowed" disabled>Save</button>
+                                    <button onClick={() => setShowDeductionModal(false)} className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-medium hover:bg-gray-50 text-sm">Cancel</button>
+                                </div>
+                                <p className="mt-4 text-xs text-red-500 text-right">* indicates mandatory fields</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Benefit Modal */}
+                {showBenefitModal && (
+                    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+                        <div className="bg-white rounded-lg shadow-xl max-w-md w-full animate-in fade-in zoom-in-95 duration-200">
+                            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+                                <h3 className="text-lg font-medium text-gray-800">Add Benefits</h3>
+                                <button onClick={() => setShowBenefitModal(false)} className="text-gray-400 hover:text-gray-600">
+                                    <XMarkIcon className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <div className="p-6">
+                                <div className="mb-6">
+                                    <SearchableDropdown
+                                        label={<>Select a benefit plan<span className="text-red-500">*</span></>}
+                                        options={["Voluntary Provident Fund"]}
+                                        placeholder="Select"
+                                        value=""
+                                        onChange={(val) => console.log(val)}
+                                    />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button className="px-4 py-2 bg-blue-400 text-white rounded font-medium shadow-sm text-sm cursor-not-allowed" disabled>Save</button>
+                                    <button onClick={() => setShowBenefitModal(false)} className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-medium hover:bg-gray-50 text-sm">Cancel</button>
+                                </div>
+                                <p className="mt-4 text-xs text-red-500 text-right">* indicates mandatory fields</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Delete Confirmation Modal */}
+                {showDeleteModal && (
+                    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+                        <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
+                            <div className="flex gap-4">
+                                <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                                    <ExclamationTriangleIcon className="w-7 h-7 text-orange-500" />
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                        Are you sure you want to delete all the details of {employee.firstName} {employee.lastName}?
+                                    </h3>
+                                    <div className="flex gap-3 mt-6">
+                                        <button
+                                            onClick={() => {
+                                                // TODO: Implement actual delete call
+                                                console.log("Deleting employee...");
+                                                setShowDeleteModal(false);
+                                                navigate('/payroll/employees');
+                                            }}
+                                            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium shadow-sm transition-colors"
+                                        >
+                                            Yes
+                                        </button>
+                                        <button
+                                            onClick={() => setShowDeleteModal(false)}
+                                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+                                        >
+                                            No
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Vehicle Details Modal */}
+                {showVehicleModal && (
+                    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+                        <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+                            {/* Header */}
+                            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+                                <h3 className="text-lg font-medium text-gray-800">Employer Car Details for Perquisite Calculation</h3>
+                                <button onClick={() => setShowVehicleModal(false)} className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600">
+                                    <XMarkIcon className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Body */}
+                            <div className="p-6 overflow-y-auto">
+                                <div className="bg-blue-50 p-3 rounded-md text-xs text-blue-800 mb-6">
+                                    Company-owned or hired cars used by employees for official or personal use are eligible to claim perquisite
+                                </div>
+
+                                <form className="space-y-6">
+                                    {/* Owner */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-2">Owner of the Car<span className="text-red-500">*</span></label>
+                                        <div className="flex gap-6">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="carOwner" defaultChecked className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">Employer-owned (or) Hired for Employee</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="carOwner" className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700 flex items-center gap-1">Employee-owned <span className="text-gray-400 text-xs">ⓘ</span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Maintenance */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-2">Maintenance Cost Met By<span className="text-red-500">*</span></label>
+                                        <div className="flex gap-6">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="maintenance" className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">Employer</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="maintenance" className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">Employee</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Cubic Capacity */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-2">Cubic Capacity of Company Owned Car<span className="text-red-500">*</span></label>
+                                        <div className="flex gap-6">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="capacity" className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">Upto 1600CC</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="capacity" className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">Greater than 1600CC</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Driver Provided */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-2">Is driver provided by company?<span className="text-red-500">*</span></label>
+                                        <div className="flex gap-6">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="driver" className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">Yes</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="driver" defaultChecked className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">No</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="p-6 pt-0 flex gap-3">
+                                <button
+                                    onClick={() => { console.log("Saving vehicle details"); setShowVehicleModal(false); }}
+                                    className="px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-medium shadow-sm transition-colors text-sm"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    onClick={() => setShowVehicleModal(false)}
+                                    className="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded font-medium hover:bg-gray-50 transition-colors text-sm"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Exit Process Modal */}
+                {showExitModal && (
+                    <div className="fixed inset-0 bg-white z-[60] overflow-y-auto animate-in fade-in duration-200">
+                        <div className="max-w-7xl mx-auto px-8 py-8">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-8">{employee.firstName} {employee.lastName}'s Exit details</h2>
+
+                            <div className="flex gap-12">
+                                {/* Left Form */}
+                                <div className="flex-1 space-y-6 max-w-2xl">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Last Working Day<span className="text-red-500">*</span></label>
+                                        <input type="date" className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-500 focus:ring-blue-500 focus:border-blue-500" placeholder="dd/MM/yyyy" />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Exit<span className="text-red-500">*</span></label>
+                                        <select className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-500 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">Select</option>
+                                            <option value="resignation">Resignation</option>
+                                            <option value="termination">Termination</option>
+                                            <option value="absconding">Absconding</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">When do you want to settle the final pay ?</label>
+                                        <div className="space-y-2">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="settlement" defaultChecked className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">Pay as per the regular pay schedule</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="settlement" className="text-blue-600 focus:ring-blue-500" />
+                                                <span className="text-sm text-gray-700">Pay on a given date</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Personal Email Address <span className="text-gray-400">ⓘ</span></label>
+                                        <input type="email" className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500" />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                                        <textarea rows={4} className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+                                    </div>
+
+                                    <div className="bg-orange-50 border border-orange-100 rounded-md p-4">
+                                        <p className="text-sm font-bold text-gray-800 mb-2">Note:</p>
+                                        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                            <li>Portal is not enabled for this employee. Kindly collect the proof of investments before processing the payroll.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="flex gap-3 pt-4">
+                                        <button
+                                            onClick={() => { console.log("Exit process initiated"); setShowExitModal(false); }}
+                                            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-medium shadow-sm transition-colors text-sm"
+                                        >
+                                            Proceed
+                                        </button>
+                                        <button
+                                            onClick={() => setShowExitModal(false)}
+                                            className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded font-medium hover:bg-gray-50 transition-colors text-sm"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Right Info Card */}
+                                <div className="w-80 pt-8">
+                                    <div className="flex flex-col items-center text-center">
+                                        <div className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl font-normal mb-4 ${getAvatarColor(employee.firstName)}`}>
+                                            {employee.firstName?.charAt(0)}
+                                        </div>
+                                        <h3 className="text-xl font-medium text-gray-900">{employee.firstName} {employee.lastName}</h3>
+                                        <p className="text-sm text-gray-500 mb-8">ID: {employee.employeeId}</p>
+
+                                        <div className="w-full space-y-4 text-left">
+                                            <div className="flex justify-between">
+                                                <span className="text-sm text-gray-500">Designation</span>
+                                                <span className="text-sm text-gray-900">{employee.designation}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-sm text-gray-500">Department</span>
+                                                <span className="text-sm text-gray-900">{employee.department}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-sm text-gray-500">Date of Joining</span>
+                                                <span className="text-sm text-gray-900">{employee.dateOfJoining}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
