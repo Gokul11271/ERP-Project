@@ -11,7 +11,8 @@ import {
     BellIcon,
     QuestionMarkCircleIcon,
     ChevronRightIcon,
-    ArrowRightOnRectangleIcon // For "Access My Portal" icon if needed, or similar
+    ArrowRightOnRectangleIcon, // For "Access My Portal" icon if needed, or similar
+    ArrowLeftIcon
 } from "@heroicons/react/24/outline";
 
 // Payroll Specific Navigation
@@ -45,9 +46,14 @@ const PayrollLayout = () => {
                 <header className="h-14 flex items-center justify-between px-4 z-20 flex-shrink-0" style={{ backgroundColor: "#1e2130", color: "white" }}>
                     <div className="flex items-center gap-8">
                         {/* Logo / Title Area */}
-                        <div className="flex items-center gap-2 w-56">
-                            <BanknotesIcon className="w-6 h-6 text-white" />
-                            <span className="text-lg font-medium tracking-wide">Payroll</span>
+                        <div className="flex items-center gap-4">
+                            <Link to="/home" className="p-1 rounded-full hover:bg-white/10 transition-colors" title="Back to Main Dashboard">
+                                <ArrowLeftIcon className="w-5 h-5 text-gray-300 hover:text-white" />
+                            </Link>
+                            <div className="flex items-center gap-2 w-48">
+                                <BanknotesIcon className="w-6 h-6 text-white" />
+                                <span className="text-lg font-medium tracking-wide">Payroll</span>
+                            </div>
                         </div>
 
                         {/* Search Bar */}
